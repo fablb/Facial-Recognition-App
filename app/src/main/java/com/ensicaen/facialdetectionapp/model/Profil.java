@@ -4,13 +4,13 @@ import java.util.Date;
 
 public class Profil {
     private String _name;
-    private double features;
+    private double _features;
     private Date _registedDate;
 
-    public Profil(String name, Date registedDate) {
+    public Profil(String name, double features, Date registedDate) {
         _name = name;
         _registedDate = registedDate;
-        features = 1.099;
+        _features = features;
     }
 
     public String get_name() {
@@ -18,11 +18,11 @@ public class Profil {
     }
 
     public void set_features(double features) {
-        this.features = features;
+        this._features = features;
     }
 
     public double get_features() {
-        return features;
+        return _features;
     }
 
     public void set_name(String _name) {

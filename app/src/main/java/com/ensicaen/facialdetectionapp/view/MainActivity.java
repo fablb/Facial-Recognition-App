@@ -28,17 +28,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void init() {
         _name = (EditText)findViewById(R.id.name);
-        this._control = Control.get_instance(this);
+        _control = Control.get_instance(this);
         addProfilButtonListener();
     }
 
+    /**
+     * Listener on the button to create profil
+     */
     private void addProfilButtonListener() {
         ((Button)findViewById(R.id.addButton)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //Toast.makeText(MainActivity.this, "Profil ajouté", Toast.LENGTH_SHORT).show();
                 String name ="";
                 try {
-                    name = _name.toString();
+                    name = _name.getText().toString();
+                    recupProfil(name);
                 } catch (Exception e) {}
                 if (name == "") {
                     Toast.makeText(MainActivity.this, "Incorect name", Toast.LENGTH_SHORT).show();
@@ -47,7 +50,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Recuperation of the information to create a profil
+     * @param name
+     */
     private void recupProfil(String name) {
-        this._control.createProfil(name, this);
+        _control.createProfil(name, this);
     }
 }

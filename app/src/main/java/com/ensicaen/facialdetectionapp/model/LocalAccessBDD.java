@@ -3,10 +3,16 @@ package com.ensicaen.facialdetectionapp.model;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.ensicaen.facialdetectionapp.utils.MySQLiteOpenHelper;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 
 public class LocalAccessBDD {
     private String _bdName = "bdProfil.sqlite";
@@ -20,24 +26,10 @@ public class LocalAccessBDD {
 
     public void add(Profil profil) {
         _bd = _bdAccess.getWritableDatabase();
-        String req = "INSERT INTO profil (name, features, registredDate) VALUES ";
-        req += "("+ profil.get_name() +",\""+ profil.get_features() +"\",\""+ profil.get_registedDate() +"\")";
+        String req = "INSERT INTO profil(name, features, registred_date) VALUES ";
+        req += "(\'"+ profil.get_name() +"\',\'"+ profil.get_features() +"\',\'"+ profil.get_registedDate() +"\')";
+        //Log.e(profil.get_name()+" "+profil.get_features()+" "+profil.get_registedDate());
         _bd.execSQL(req);
     }
 
-    public Profil readLast() {
-        _bd = _bdAccess.getReadableDatabase();
-        Profil profil = null;
-        String req = "SELECT * FROM profil";
-        Cursor cursor = _bd.rawQuery(req, null);
-        if(!cursor.isAfterLast()) {
-            Date date = new Date();
-            String name = cursor.getString(1);
-            Double features = cursor.getDouble(2);
-            profil = new Profil(name, date);
-            profil.set_features(features);
-        }
-        cursor.close();
-        return profil;
-    }
 }

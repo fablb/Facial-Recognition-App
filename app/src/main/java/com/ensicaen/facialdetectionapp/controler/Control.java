@@ -12,24 +12,42 @@ public final class Control {
     private static Profil _profil;
     private static LocalAccessBDD _localAccess;
 
+    /**
+     * Private constructor
+     */
     public Control() {
         super();
     }
 
+    /**
+     * Instance's creation
+     * @param context
+     * @return
+     */
     public static final Control get_instance(Context context) {
         if(_instance==null) {
 
             _instance = new Control();
             _localAccess = new LocalAccessBDD(context);
-            _profil = _localAccess.readLast();
         }
         return _instance;
     }
 
+    /**
+     * Profil's creation
+     * @param name
+     * @param context
+     */
     public void createProfil(String name, Context context) {
-        _profil = new Profil(name, new Date());
+        _profil = new Profil(name, recupFeatures(), new Date());
         _localAccess.add(_profil);
     }
 
-
+    /**
+     * Scan the face and return the features
+     * @return
+     */
+    public double recupFeatures() {
+        return 1.099;
+    }
 }
