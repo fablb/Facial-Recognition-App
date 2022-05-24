@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void enableCamera() {
-        setContentView(R.layout.camera_view);
+        Intent intent = new Intent(this, CameraView.class);
+        startActivity(intent);
     }
 }
