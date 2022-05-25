@@ -1,10 +1,12 @@
 package com.ensicaen.facialdetectionapp.view;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
@@ -12,6 +14,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.ensicaen.facialdetectionapp.R;
+import com.ensicaen.facialdetectionapp.controler.FrameAnalyzer;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.ExecutionException;
@@ -43,8 +46,10 @@ public class CameraView extends AppCompatActivity {
                 .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
                 .build();
 
-        preview.setSurfaceProvider(previewView.getSurfaceProvider());
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+        imageAnalysis.setAnalyzer(Runnable::run, new FrameAnalyzer());
 
-        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview);
+        preview.setSurfaceProvider(previewView.getSurfaceProvider());
+        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageAnalysis);
     }
 }
