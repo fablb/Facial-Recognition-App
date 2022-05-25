@@ -13,6 +13,7 @@
         <androidx.camera.view.PreviewView
             android:layout_height="match_parent"
             android:layout_width="match_parent"
-            android:id="@+id/previewView" />
+            android:id="@+id/previewView"
+            app:scaleType="fitCenter"/>
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
