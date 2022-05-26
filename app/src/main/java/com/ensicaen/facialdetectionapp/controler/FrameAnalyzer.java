@@ -12,6 +12,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
+import androidx.preference.PreferenceManager;
 
 import com.ensicaen.facialdetectionapp.utils.BitmapUtils;
 import com.ensicaen.facialdetectionapp.utils.YuvToRgbConverter;
@@ -34,11 +35,13 @@ import java.util.List;
 import Catalano.Imaging.FastBitmap;
 
 public class FrameAnalyzer implements ImageAnalysis.Analyzer {
+    private Context context;
     private FrameListener frameListener;
     private int previewWidth;
     private int previewHeight;
 
-    public FrameAnalyzer(int pWidth, int pHeight) {
+    public FrameAnalyzer(Context c, int pWidth, int pHeight) {
+        context = c;
         previewWidth = pWidth;
         previewHeight = pHeight;
     }
@@ -50,16 +53,14 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
             /* Get InputImage for ML KIT */
             InputImage image = InputImage.fromMediaImage(frame, frameProxy.getImageInfo().getRotationDegrees());
 
-            /* Convert ImageProxy to Bitmap for future usage */
-            @SuppressLint("UnsafeOptInUsageError") Bitmap bitmapImage = BitmapUtils.getBitmap(frameProxy);
             //FastBitmap fb = new FastBitmap(bitmapImage);
             //fb.toGrayscale();
 
-            detectFaces(image, bitmapImage, frameProxy);
+            detectFaces(image, frameProxy);
         }
     }
 
-    private void detectFaces(InputImage image, Bitmap bitmapImage, ImageProxy frameProxy) {
+    private void detectFaces(InputImage image, ImageProxy frameProxy) {
         FaceDetectorOptions options = new FaceDetectorOptions.Builder()
                 .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
                 .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
@@ -69,10 +70,13 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
 
         FaceDetector detector = FaceDetection.getClient(options);
 
-        Task<List<Face>> result =
+        @SuppressLint("UnsafeOptInUsageError") Task<List<Face>> result =
             detector.process(image)
                 .addOnSuccessListener(
                     faces -> {
+                        if (faces.isEmpty()) {
+                            frameListener.drawFaceBounds(null);
+                        }
                         for (Face face : faces) {
                             Rect bounds = face.getBoundingBox();
                             float rotY = face.getHeadEulerAngleY();  // Head is rotated to the right rotY degrees
@@ -81,6 +85,10 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
                             /* Stops if the face is not centered */
                             if (!faceCenteringDetection(face, image.getWidth(), image.getHeight())) {
                                 return;
+                            }
+
+                            if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("switch_save_face", false)) {
+                                saveFrame(String.valueOf(frameProxy.getImage().getTimestamp()), getFaceBitmap(frameProxy, bounds));
                             }
 
                             /* Bounds needs to be transformed as previewView and ImageProxy dimensions are different */
@@ -92,6 +100,27 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
                 .addOnCompleteListener(task -> {
                     frameProxy.close();
                 });
+    }
+
+    /* Convert ImageProxy to Bitmap for future usage */
+    @SuppressLint("UnsafeOptInUsageError")
+    public Bitmap getBitmap(ImageProxy image) {
+        return BitmapUtils.getBitmap(image);
+    }
+
+    public Bitmap getFaceBitmap(ImageProxy image, Rect faceBounds) {
+        return Bitmap.createBitmap(getBitmap(image), faceBounds.left, faceBounds.top, faceBounds.width(), faceBounds.height());
+    }
+
+    /* Save frame in internal storage */
+    public void saveFrame(String name, Bitmap frame) {
+        try {
+            @SuppressLint("UnsafeOptInUsageError") FileOutputStream out = new FileOutputStream("/data/user/0/com.ensicaen.facialdetectionapp/files/"+name+".png");
+            frame.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /* Check if face is centered in image */
@@ -128,16 +157,5 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
         int scaledBottom = (int) (scaleY * bounds.bottom);
 
         return new Rect(scaledLeft, scaledTop, scaledRight, scaledBottom);
-    }
-
-    /* Save frame in internal storage */
-    public void saveFrame(String name, Bitmap frame) {
-        try {
-            @SuppressLint("UnsafeOptInUsageError") FileOutputStream out = new FileOutputStream("/data/user/0/com.ensicaen.facialdetectionapp/files/"+name);
-            frame.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

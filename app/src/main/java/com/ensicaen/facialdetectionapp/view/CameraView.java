@@ -1,9 +1,15 @@
 package com.ensicaen.facialdetectionapp.view;
 
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
@@ -15,6 +21,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.ensicaen.facialdetectionapp.R;
+import com.ensicaen.facialdetectionapp.SettingsActivity;
 import com.ensicaen.facialdetectionapp.controler.FrameAnalyzer;
 import com.ensicaen.facialdetectionapp.controler.FrameListener;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -31,6 +38,7 @@ public class CameraView extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.camera_view);
+
         previewView = findViewById(R.id.previewView);
         cameraOverlay = findViewById(R.id.camera_overlay);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
@@ -51,11 +59,29 @@ public class CameraView extends AppCompatActivity {
                 .build();
 
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
-        FrameAnalyzer frameAnalyzer = new FrameAnalyzer(previewView.getWidth(), previewView.getHeight());
+        FrameAnalyzer frameAnalyzer = new FrameAnalyzer(this, previewView.getWidth(), previewView.getHeight());
         frameAnalyzer.addFrameListener(cameraOverlay);
         imageAnalysis.setAnalyzer(Runnable::run, frameAnalyzer);
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageAnalysis);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actionbar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                break;
+        }
+        return true;
     }
 }
