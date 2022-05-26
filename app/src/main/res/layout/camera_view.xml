@@ -6,14 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".view.CameraView">
 
-    <FrameLayout
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:id="@+id/container">
+
         <androidx.camera.view.PreviewView
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:id="@+id/previewView"
             app:scaleType="fitCenter"/>
-    </FrameLayout>
+        <com.ensicaen.facialdetectionapp.view.CameraOverlay
+            android:id="@+id/camera_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

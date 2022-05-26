@@ -1,5 +1,6 @@
 package com.ensicaen.facialdetectionapp.view;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -15,6 +16,7 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.ensicaen.facialdetectionapp.R;
 import com.ensicaen.facialdetectionapp.controler.FrameAnalyzer;
+import com.ensicaen.facialdetectionapp.controler.FrameListener;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.ExecutionException;
@@ -22,6 +24,7 @@ import java.util.concurrent.ExecutionException;
 
 public class CameraView extends AppCompatActivity {
     private PreviewView previewView;
+    private CameraOverlay cameraOverlay;
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
 
     @Override
@@ -29,6 +32,7 @@ public class CameraView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.camera_view);
         previewView = findViewById(R.id.previewView);
+        cameraOverlay = findViewById(R.id.camera_overlay);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
             try {
@@ -47,7 +51,9 @@ public class CameraView extends AppCompatActivity {
                 .build();
 
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
-        imageAnalysis.setAnalyzer(Runnable::run, new FrameAnalyzer());
+        FrameAnalyzer frameAnalyzer = new FrameAnalyzer(previewView.getWidth(), previewView.getHeight());
+        frameAnalyzer.addFrameListener(cameraOverlay);
+        imageAnalysis.setAnalyzer(Runnable::run, frameAnalyzer);
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageAnalysis);

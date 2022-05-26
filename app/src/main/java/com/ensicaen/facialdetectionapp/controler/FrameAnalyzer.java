@@ -34,6 +34,14 @@ import java.util.List;
 import Catalano.Imaging.FastBitmap;
 
 public class FrameAnalyzer implements ImageAnalysis.Analyzer {
+    private FrameListener frameListener;
+    private int previewWidth;
+    private int previewHeight;
+
+    public FrameAnalyzer(int pWidth, int pHeight) {
+        previewWidth = pWidth;
+        previewHeight = pHeight;
+    }
 
     @Override
     public void analyze(ImageProxy frameProxy) {
@@ -52,22 +60,15 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
     }
 
     private void detectFaces(InputImage image, Bitmap bitmapImage, ImageProxy frameProxy) {
-        // [START set_detector_options]
         FaceDetectorOptions options = new FaceDetectorOptions.Builder()
                 .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
                 .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
                 .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
                 .setMinFaceSize(0.2f)
                 .build();
-        // [END set_detector_options]
 
-        // [START get_detector]
         FaceDetector detector = FaceDetection.getClient(options);
-        // Or use the default options:
-        // FaceDetector detector = FaceDetection.getClient();
-        // [END get_detector]
 
-        // [START run_detector]
         Task<List<Face>> result =
             detector.process(image)
                 .addOnSuccessListener(
@@ -82,16 +83,8 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
                                 return;
                             }
 
-                            /* Save frame in internal storage for debugging purpose */
-                            /*
-                            try {
-                                @SuppressLint("UnsafeOptInUsageError") FileOutputStream out = new FileOutputStream("/data/user/0/com.ensicaen.facialdetectionapp/files/"+frameProxy.getImage().getTimestamp()+"_test.png");
-                                Bitmap croppedFace = Bitmap.createBitmap(bitmapImage, bounds.left, bounds.top, bounds.width(), bounds.height());
-                                croppedFace.compress(Bitmap.CompressFormat.PNG, 50, out);
-                                out.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }*/
+                            /* Bounds needs to be transformed as previewView and ImageProxy dimensions are different */
+                            frameListener.drawFaceBounds(transformBounds(bounds, image.getHeight(), image.getWidth())); // Swap width and height as mobile phone is in portrait mode
                         }
                     })
                 .addOnFailureListener(
@@ -99,7 +92,6 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
                 .addOnCompleteListener(task -> {
                     frameProxy.close();
                 });
-        // [END run_detector]
     }
 
     /* Check if face is centered in image */
@@ -115,6 +107,37 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
             return true;
         } else {
             return false;
+        }
+    }
+
+    public void addFrameListener(FrameListener fl) {
+        frameListener = fl;
+    }
+
+    public Rect transformBounds(Rect bounds, int imageWidth, int imageHeight) {
+        float scaleX = previewWidth / (float)imageWidth;
+        float scaleY = previewHeight / (float)imageHeight;
+
+        int flippedLeft = imageWidth - bounds.right;
+        int flippedRight = imageWidth - bounds.left;
+
+        // Scale all coordinates to match preview
+        int scaledLeft = (int) (scaleX * flippedLeft);
+        int scaledTop = (int) (scaleY * bounds.top);
+        int scaledRight = (int) (scaleX * flippedRight);
+        int scaledBottom = (int) (scaleY * bounds.bottom);
+
+        return new Rect(scaledLeft, scaledTop, scaledRight, scaledBottom);
+    }
+
+    /* Save frame in internal storage */
+    public void saveFrame(String name, Bitmap frame) {
+        try {
+            @SuppressLint("UnsafeOptInUsageError") FileOutputStream out = new FileOutputStream("/data/user/0/com.ensicaen.facialdetectionapp/files/"+name);
+            frame.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
