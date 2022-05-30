@@ -8,6 +8,7 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.media.Image;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.ImageAnalysis;
@@ -16,6 +17,7 @@ import androidx.preference.PreferenceManager;
 
 import com.ensicaen.facialdetectionapp.utils.BitmapUtils;
 import com.ensicaen.facialdetectionapp.utils.YuvToRgbConverter;
+import com.ensicaen.facialdetectionapp.view.MainActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -64,7 +66,7 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
         FaceDetectorOptions options = new FaceDetectorOptions.Builder()
                 .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
                 .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
-                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
+                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
                 .setMinFaceSize(0.2f)
                 .build();
 
@@ -82,10 +84,20 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
                             float rotY = face.getHeadEulerAngleY();  // Head is rotated to the right rotY degrees
                             float rotZ = face.getHeadEulerAngleZ();  // Head is tilted sideways rotZ degrees
 
+                            /* Stops if the eyes are close */
+                            if ((face.getLeftEyeOpenProbability() != null) || (face.getRightEyeOpenProbability() != null)) {
+                                if ((face.getLeftEyeOpenProbability() < 0.75f) || (face.getRightEyeOpenProbability() < 0.75f)) {
+                                    Toast.makeText(context, "Please open your eyes", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                            }
+
                             /* Stops if the face is not centered */
                             if (!faceCenteringDetection(face, image.getWidth(), image.getHeight())) {
                                 return;
                             }
+
+
 
                             if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("switch_save_face", false)) {
                                 saveFrame(String.valueOf(frameProxy.getImage().getTimestamp()), getFaceBitmap(frameProxy, bounds));
