@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Size;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -59,7 +60,7 @@ public class CameraView extends AppCompatActivity {
                 .build();
 
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
-        FrameAnalyzer frameAnalyzer = new FrameAnalyzer(this, previewView.getWidth(), previewView.getHeight());
+        FrameAnalyzer frameAnalyzer = new FrameAnalyzer(this, new Size(previewView.getWidth(), previewView.getHeight()));
         frameAnalyzer.addFrameListener(cameraOverlay);
         imageAnalysis.setAnalyzer(Runnable::run, frameAnalyzer);
 

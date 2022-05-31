@@ -18,6 +18,14 @@ package com.ensicaen.facialdetectionapp.utils;
  * limitations under the License.
  */
 
+import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.Rect;
+
+import androidx.camera.core.ImageProxy;
+
+/* Fabien Le Bec - Added getCropBitmap */
+
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -44,6 +52,11 @@ import java.nio.ByteBuffer;
 /** Utils functions for bitmap conversions. */
 public class BitmapUtils {
     private static final String TAG = "BitmapUtils";
+
+    @SuppressLint("UnsafeOptInUsageError")
+    public static Bitmap getCropBitmap(ImageProxy image, Rect bounds) {
+        return Bitmap.createBitmap(getBitmap(image), bounds.left, bounds.top, bounds.width(), bounds.height());
+    }
 
     /** Converts NV21 format byte buffer to bitmap. */
     @Nullable
