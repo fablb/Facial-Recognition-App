@@ -47,7 +47,8 @@ public final class Control {
      * Scan the face and return the features
      * @return
      */
-    public double recupFeatures() {
-        return 1.099;
+    public int[] recupFeatures() {
+        int[] array = new int[156];
+        return array;
     }
 }
