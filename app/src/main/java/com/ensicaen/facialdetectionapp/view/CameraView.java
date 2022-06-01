@@ -60,7 +60,7 @@ public class CameraView extends AppCompatActivity {
                 .build();
 
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
-        FrameAnalyzer frameAnalyzer = new FrameAnalyzer(this, new Size(previewView.getWidth(), previewView.getHeight()));
+        FrameAnalyzer frameAnalyzer = new FrameAnalyzer(this);
         frameAnalyzer.addFrameListener(cameraOverlay);
         imageAnalysis.setAnalyzer(Runnable::run, frameAnalyzer);
 

@@ -11,7 +11,7 @@
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:id="@+id/previewView"
-            app:scaleType="fitCenter"/>
+            app:scaleType="fillCenter"/>
         <com.ensicaen.facialdetectionapp.view.CameraOverlay
             android:id="@+id/camera_overlay"
             android:layout_width="match_parent"

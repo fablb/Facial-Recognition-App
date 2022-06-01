@@ -24,13 +24,11 @@ import java.util.List;
 public class FrameAnalyzer implements ImageAnalysis.Analyzer {
     private Context _context;
     private FrameListener _frameListener;
-    private Size _previewViewSize;
     private FaceDetector _detector;
     private FaceDetectorListener _detectorListener;
 
-    public FrameAnalyzer(Context context, Size previewViewSize) {
+    public FrameAnalyzer(Context context) {
         _context = context;
-        _previewViewSize = previewViewSize;
 
         FaceDetectorOptions options = new FaceDetectorOptions.Builder()
                 .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
@@ -75,6 +73,6 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
 
     public void addFrameListener(FrameListener frameListener) {
         _frameListener = frameListener;
-        _detectorListener = new FaceDetectorListener(_frameListener, PreferenceManager.getDefaultSharedPreferences(_context), _previewViewSize);
+        _detectorListener = new FaceDetectorListener(_frameListener, PreferenceManager.getDefaultSharedPreferences(_context));
     }
 }
