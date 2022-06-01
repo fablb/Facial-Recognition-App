@@ -3,6 +3,7 @@ package com.ensicaen.facialdetectionapp.controler;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.util.Log;
 import android.util.Size;
@@ -16,6 +17,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
+import com.google.mlkit.vision.face.FaceContour;
 
 import java.util.List;
 
@@ -49,9 +51,11 @@ public class FaceDetectorListener implements OnSuccessListener, OnFailureListene
 
         if (faces.isEmpty()) {
             _frameListener.drawFaceBounds(null);
+            _frameListener.drawFaceLine(null);
         }
         for (Face face : faces) {
             Rect bounds = face.getBoundingBox();
+            List<PointF> contours = face.getContour(FaceContour.FACE).getPoints();
 
             /* Stops if the face is not centered */
             if (!FaceUtils.faceCenteringDetection(face, _image.getWidth(), _image.getHeight())) {
@@ -65,6 +69,7 @@ public class FaceDetectorListener implements OnSuccessListener, OnFailureListene
             }
 
             /* Bounds needs to be transformed as previewView and ImageProxy dimensions are different */
+            _frameListener.drawFaceLine(RectUtils.transformListPoint(contours, _previewViewSize.getWidth(), _previewViewSize.getHeight(),_image.getHeight(), _image.getWidth()));
             _frameListener.drawFaceBounds(RectUtils.transformBounds(bounds, _previewViewSize.getWidth(), _previewViewSize.getHeight(),_image.getHeight(), _image.getWidth())); // Swap width and height as mobile phone is in portrait mode
         }
     }
