@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.ensicaen.facialdetectionapp.LBPRecognitionPerformance;
 import com.ensicaen.facialdetectionapp.R;
 import com.ensicaen.facialdetectionapp.controler.Control;
 
@@ -26,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         init();
+        LBPRecognitionPerformance lbpPerf = new LBPRecognitionPerformance("/data/data/com.ensicaen.facialdetectionapp/dataset/crop/yalefaces/");
+        lbpPerf.load();
+        lbpPerf.run();
     }
 
     private EditText _name;
