@@ -60,8 +60,8 @@ public class CameraOverlay extends View implements FrameListener {
         }
 
         if(!faceContours.isEmpty()) {
-            for (int i = 0; i < faceContours.size() - 1; i++) {
-                canvas.drawLine(faceContours.get(i).x, faceContours.get(i).y, faceContours.get(i + 1).x, faceContours.get(i + 1).y, paint);
+            for (PointF point : faceContours) {
+                canvas.drawCircle(point.x, point.y, 1, paint);
             }
         }
     }
@@ -78,7 +78,7 @@ public class CameraOverlay extends View implements FrameListener {
     }
 
     @Override
-    public void drawFaceLine(List<PointF> Line) {
+    public void drawFacePoints(List<PointF> Line) {
         if (PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("switch_draw_face_bounds", false)) {
             faceContours.clear();
             if (Line != null) {
