@@ -14,6 +14,7 @@ import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceContour;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FaceDetectorListener implements OnSuccessListener, OnFailureListener {
@@ -44,11 +45,11 @@ public class FaceDetectorListener implements OnSuccessListener, OnFailureListene
 
         if (faces.isEmpty()) {
             _frameListener.drawFaceBounds(null);
-            _frameListener.drawFaceLine(null);
+            _frameListener.drawFacePoints(null);
         }
         for (Face face : faces) {
             Rect bounds = face.getBoundingBox();
-            List<PointF> contours = face.getContour(FaceContour.FACE).getPoints();
+            List<PointF> contours = getAllPoints(face);
 
             /* Stops if the face is not centered */
             //
@@ -71,9 +72,19 @@ public class FaceDetectorListener implements OnSuccessListener, OnFailureListene
                 _frameListener.setImageSourceInfo(_image.getHeight(), _image.getWidth(), true);
             }
 
-            _frameListener.drawFaceLine(contours);
+            _frameListener.drawFacePoints(contours);
             _frameListener.drawFaceBounds(bounds);
         }
+    }
+
+    private List<PointF> getAllPoints(Face face) {
+        List<PointF> contours = new ArrayList<>();
+        for (FaceContour faceContour: face.getAllContours()) {
+            for (PointF point : faceContour.getPoints()) {
+                contours.add(point);
+            }
+        }
+        return contours;
     }
 
     @Override
