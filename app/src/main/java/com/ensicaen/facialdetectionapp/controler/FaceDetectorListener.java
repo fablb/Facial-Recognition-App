@@ -49,7 +49,7 @@ public class FaceDetectorListener implements OnSuccessListener, OnFailureListene
         }
         for (Face face : faces) {
             Rect bounds = face.getBoundingBox();
-            List<PointF> contours = getAll(face);
+            List<PointF> contours = getAllPoints(face);
 
             /* Stops if the face is not centered */
             //
@@ -77,7 +77,7 @@ public class FaceDetectorListener implements OnSuccessListener, OnFailureListene
         }
     }
 
-    private List<PointF> getAll(Face face) {
+    private List<PointF> getAllPoints(Face face) {
         List<PointF> contours = new ArrayList<>();
         for (FaceContour faceContour: face.getAllContours()) {
             for (PointF point : faceContour.getPoints()) {
