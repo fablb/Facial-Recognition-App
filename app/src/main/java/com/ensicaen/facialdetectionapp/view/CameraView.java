@@ -73,12 +73,6 @@ public class CameraView extends AppCompatActivity {
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageAnalysis);
     }
 
-    public void close() {
-        finish();
-        /*Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);*/
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

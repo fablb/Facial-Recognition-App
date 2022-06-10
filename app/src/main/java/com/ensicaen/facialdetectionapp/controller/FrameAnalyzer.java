@@ -26,7 +26,7 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
 
     public FrameAnalyzer() {
         FaceDetectorOptions options = new FaceDetectorOptions.Builder()
-                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
                 .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
                 .setMinFaceSize(0.2f)
                 .build();

@@ -18,4 +18,10 @@ public class SingleToast {
             }
         }
     }
+
+    public static void clear() {
+        if (_toast != null) {
+            _toast.cancel();
+        }
+    }
 }

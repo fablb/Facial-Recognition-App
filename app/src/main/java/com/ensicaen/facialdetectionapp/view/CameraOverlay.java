@@ -130,7 +130,7 @@ public class CameraOverlay extends View implements FrameListener {
     private void updateTransformation() {
         float viewAspectRatio = (float) getWidth() / getHeight();
         float imageAspectRatio = (float) imageWidth / imageHeight;
-        Log.i("FaceDetectionApp", getWidth() + "_" + getHeight());
+
         postScaleWidthOffset = 0;
         postScaleHeightOffset = 0;
         if (viewAspectRatio > imageAspectRatio) {
