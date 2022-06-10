@@ -1,16 +1,16 @@
-package com.ensicaen.facialdetectionapp.controler;
+package com.ensicaen.facialdetectionapp.controller;
 
 import android.content.Context;
 
-import com.ensicaen.facialdetectionapp.model.LocalAccessBDD;
-import com.ensicaen.facialdetectionapp.model.Profil;
+import com.ensicaen.facialdetectionapp.model.LocalDB;
+import com.ensicaen.facialdetectionapp.model.Profile;
 
 import java.util.Date;
 
 public final class Control {
     private static Control _instance = null;
-    private static Profil _profil;
-    private static LocalAccessBDD _localAccess;
+    private static Profile _profile;
+    private static LocalDB _localAccess;
 
     /**
      * Private constructor
@@ -28,7 +28,7 @@ public final class Control {
         if(_instance==null) {
 
             _instance = new Control();
-            _localAccess = new LocalAccessBDD(context);
+            _localAccess = new LocalDB(context);
         }
         return _instance;
     }
@@ -39,8 +39,8 @@ public final class Control {
      * @param context
      */
     public void createProfil(String name, Context context) {
-        _profil = new Profil(name, recupFeatures(), new Date());
-        _localAccess.add(_profil);
+        _profile = new Profile(name, recupFeatures(), new Date());
+        _localAccess.add(_profile);
     }
 
     /**

@@ -15,7 +15,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.ensicaen.facialdetectionapp.R;
-import com.ensicaen.facialdetectionapp.controler.Control;
+import com.ensicaen.facialdetectionapp.controller.Control;
 
 public class MainActivity extends AppCompatActivity {
     private static final String[] CAMERA_PERMISSION = new String[]{Manifest.permission.CAMERA};
@@ -34,16 +34,25 @@ public class MainActivity extends AppCompatActivity {
     private void init() {
         _name = (EditText)findViewById(R.id.name);
         _control = Control.get_instance(this);
-        addProfilButtonListener();
+        addRegisterButtonListener();
         addCameraButtonListener();
     }
 
     /**
-     * Listener on the button to create profil
+     * Listener on the button to register a profile
      */
-    private void addProfilButtonListener() {
-        ((Button)findViewById(R.id.addButton)).setOnClickListener(new View.OnClickListener() {
+    private void addRegisterButtonListener() {
+        ((Button)findViewById(R.id.registerButton)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                if (hasCameraPermission()) {
+                    enableFaceAcquisition();
+                } else {
+                    requestPermission();
+                    if (hasCameraPermission()) {
+                        enableFaceAcquisition();
+                    }
+                }
+                /*
                 String name ="";
                 try {
                     name = _name.getText().toString();
@@ -52,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
                 if (name == "") {
                     Toast.makeText(MainActivity.this, "Incorect name", Toast.LENGTH_SHORT).show();
                 }
+                */
             }
         });
     }
@@ -63,11 +73,11 @@ public class MainActivity extends AppCompatActivity {
         ((Button)findViewById(R.id.cameraButton)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (hasCameraPermission()) {
-                    enableCamera();
+                    enableFaceDetection();
                 } else {
                     requestPermission();
                     if (hasCameraPermission()) {
-                        enableCamera();
+                        enableFaceDetection();
                     }
                 }
             }
@@ -97,8 +107,15 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    private void enableCamera() {
+    private void enableFaceDetection() {
         Intent intent = new Intent(this, CameraView.class);
+        intent.putExtra("type", "detection");
+        startActivity(intent);
+    }
+
+    private void enableFaceAcquisition() {
+        Intent intent = new Intent(this, CameraView.class);
+        intent.putExtra("type", "acquisition");
         startActivity(intent);
     }
 }

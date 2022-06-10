@@ -1,10 +1,9 @@
-package com.ensicaen.facialdetectionapp.controler;
+package com.ensicaen.facialdetectionapp.controller;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.Image;
-import android.util.Size;
 
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
@@ -22,14 +21,10 @@ import java.io.IOException;
 import java.util.List;
 
 public class FrameAnalyzer implements ImageAnalysis.Analyzer {
-    private Context _context;
-    private FrameListener _frameListener;
     private FaceDetector _detector;
-    private FaceDetectorListener _detectorListener;
+    private FaceListener _faceListener;
 
-    public FrameAnalyzer(Context context) {
-        _context = context;
-
+    public FrameAnalyzer() {
         FaceDetectorOptions options = new FaceDetectorOptions.Builder()
                 .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
                 .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
@@ -46,18 +41,14 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
             /* Get InputImage for ML KIT */
             InputImage image = InputImage.fromMediaImage(frame, frameProxy.getImageInfo().getRotationDegrees());
 
-            detectFaces(image, frameProxy);
+            _faceListener.setInputImage(image);
+            _faceListener.setImageProxy(frameProxy);
+            @SuppressLint("UnsafeOptInUsageError") Task<List<Face>> result =
+                    _detector.process(image).addOnSuccessListener(_faceListener)
+                            .addOnCompleteListener(task -> {
+                                frameProxy.close();
+                            });
         }
-    }
-
-    private void detectFaces(InputImage image, ImageProxy frameProxy) {
-        _detectorListener.setInputImage(image);
-        _detectorListener.setImageProxy(frameProxy);
-        @SuppressLint("UnsafeOptInUsageError") Task<List<Face>> result =
-                _detector.process(image).addOnSuccessListener(_detectorListener)
-                        .addOnCompleteListener(task -> {
-                            frameProxy.close();
-                        });
     }
 
     /* Save frame in internal storage */
@@ -71,8 +62,7 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
         }
     }
 
-    public void addFrameListener(FrameListener frameListener) {
-        _frameListener = frameListener;
-        _detectorListener = new FaceDetectorListener(_frameListener, PreferenceManager.getDefaultSharedPreferences(_context));
+    public void addFaceListener(FaceListener faceListener) {
+        _faceListener = faceListener;
     }
 }

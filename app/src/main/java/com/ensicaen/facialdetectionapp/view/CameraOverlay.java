@@ -4,9 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PointF;
-import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -14,7 +12,7 @@ import android.view.View;
 
 import androidx.preference.PreferenceManager;
 
-import com.ensicaen.facialdetectionapp.controler.FrameListener;
+import com.ensicaen.facialdetectionapp.controller.FrameListener;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -3,24 +3,24 @@ package com.ensicaen.facialdetectionapp.model;
 import java.util.Arrays;
 import java.util.Date;
 
-public class Profil {
+public class Profile {
     private String _name;
     private int[] _features;
     private Date _date;
 
-    public Profil(String name, Date date) {
+    public Profile(String name, Date date) {
         _name = name;
         _date = date;
         _features = new int[156];
     }
 
-    public Profil(String name, int[] features, Date date) {
+    public Profile(String name, int[] features, Date date) {
         _name = name;
         _date = date;
         _features = Arrays.copyOf(features, 156);
     }
 
-    public Profil(String name, String features, Date date) {
+    public Profile(String name, String features, Date date) {
         _name = name;
         _date = date;
         int i = 0;

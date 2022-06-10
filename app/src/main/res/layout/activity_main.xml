@@ -64,11 +64,11 @@
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/addButton"
+                android:id="@+id/registerButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Add a new profil" />
+                android:text="Register" />
 
             <Button
                 android:id="@+id/cameraButton"

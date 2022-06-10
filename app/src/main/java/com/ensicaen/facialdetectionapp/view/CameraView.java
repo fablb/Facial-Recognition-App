@@ -1,16 +1,11 @@
 package com.ensicaen.facialdetectionapp.view;
 
 import android.content.Intent;
-import android.graphics.Rect;
 import android.os.Bundle;
-import android.util.Log;
-import android.util.Size;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
@@ -20,11 +15,13 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.preference.PreferenceManager;
 
 import com.ensicaen.facialdetectionapp.R;
 import com.ensicaen.facialdetectionapp.SettingsActivity;
-import com.ensicaen.facialdetectionapp.controler.FrameAnalyzer;
-import com.ensicaen.facialdetectionapp.controler.FrameListener;
+import com.ensicaen.facialdetectionapp.controller.FaceAcquisitionListener;
+import com.ensicaen.facialdetectionapp.controller.FaceDetectorListener;
+import com.ensicaen.facialdetectionapp.controller.FrameAnalyzer;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.ExecutionException;
@@ -34,12 +31,14 @@ public class CameraView extends AppCompatActivity {
     private PreviewView previewView;
     private CameraOverlay cameraOverlay;
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
+    private String _cameraType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.camera_view);
 
+        _cameraType = getIntent().getExtras().getString("type");
         previewView = findViewById(R.id.previewView);
         cameraOverlay = findViewById(R.id.camera_overlay);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
@@ -60,12 +59,24 @@ public class CameraView extends AppCompatActivity {
                 .build();
 
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
-        FrameAnalyzer frameAnalyzer = new FrameAnalyzer(this);
-        frameAnalyzer.addFrameListener(cameraOverlay);
+
+        FrameAnalyzer frameAnalyzer = new FrameAnalyzer();
+
+        if (_cameraType.equals("detection")) {
+            frameAnalyzer.addFaceListener(new FaceDetectorListener(cameraOverlay, PreferenceManager.getDefaultSharedPreferences(this)));
+        } else if (_cameraType.equals("acquisition")) {
+            frameAnalyzer.addFaceListener(new FaceAcquisitionListener(this));
+        }
         imageAnalysis.setAnalyzer(Runnable::run, frameAnalyzer);
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageAnalysis);
+    }
+
+    public void close() {
+        finish();
+        /*Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);*/
     }
 
     @Override

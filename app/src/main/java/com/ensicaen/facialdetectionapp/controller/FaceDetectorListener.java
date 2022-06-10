@@ -1,4 +1,4 @@
-package com.ensicaen.facialdetectionapp.controler;
+package com.ensicaen.facialdetectionapp.controller;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
@@ -17,25 +17,13 @@ import com.google.mlkit.vision.face.FaceContour;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FaceDetectorListener implements OnSuccessListener, OnFailureListener {
-    private InputImage _image;
-    private ImageProxy _frameProxy;
+public class FaceDetectorListener extends FaceListener {
     private FrameListener _frameListener;
     private SharedPreferences _preferences;
 
     public FaceDetectorListener(FrameListener frameListener, SharedPreferences preferences) {
-        _image = null;
-        _frameProxy = null;
         _frameListener = frameListener;
         _preferences = preferences;
-    }
-
-    public void setInputImage(InputImage image) {
-        _image = image;
-    }
-
-    public void setImageProxy(ImageProxy frameProxy) {
-        _frameProxy = frameProxy;
     }
 
     @SuppressLint("UnsafeOptInUsageError")

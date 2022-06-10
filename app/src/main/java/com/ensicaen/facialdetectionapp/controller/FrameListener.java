@@ -1,4 +1,4 @@
-package com.ensicaen.facialdetectionapp.controler;
+package com.ensicaen.facialdetectionapp.controller;
 
 import android.graphics.PointF;
 import android.graphics.Rect;
