@@ -1,9 +1,11 @@
 package com.ensicaen.facialdetectionapp;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+import android.os.Build;
 import android.util.Log;
 
 import com.google.android.gms.tasks.Task;
@@ -15,6 +17,7 @@ import com.google.mlkit.vision.face.FaceDetectorOptions;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,46 +36,58 @@ public class LBPRecognitionPerformance {
     }
 
     public void run() {
-        int falsePositive = 0;
-        int falseNegative = 0;
+        int length = (int)(Math.pow(_dataset.keySet().size(), 2) * Math.pow(SubjectType.values().length, 2) - _dataset.keySet().size() * SubjectType.values().length);
+        double[][] features = new double[length][2];
         int total = 0;
+        FileWriter out = null;
 
-        for (double threshold = 0.005; threshold < 0.2; threshold += 0.005) {
-            for (String subject1Name : _dataset.keySet()) {
-                Subject subject1 = _dataset.get(subject1Name);
-                for (SubjectType subject1Type : SubjectType.values()) {
-                    Bitmap subject1Image = subject1.getImage(subject1Type);
-                    for (String subject2Name : _dataset.keySet()) {
-                        Subject subject2 = _dataset.get(subject2Name);
-                        for (SubjectType subject2Type : SubjectType.values()) {
-                            Bitmap subject2Image = subject2.getImage(subject2Type);
-                            double featureDistance = _recognition.compare(subject1Image, subject2Image);
-                            if (featureDistance < threshold) {
-                                if (!subject1Name.equals(subject2Name)) {
-                                    falsePositive++;
-                                    //Log.i("FaceDetectionApp", "falsePositive! (" + subject1Name + "_" + subject1Type + "|" + subject2Name + "_" + subject2Type + ") " + featureDistance);
-                                }
+        try {
+            out = new FileWriter("/data/data/com.ensicaen.facialdetectionapp/results/lbpPerformanceFeatures.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for (String subject1Name : _dataset.keySet()) {
+            Subject subject1 = _dataset.get(subject1Name);
+            for (SubjectType subject1Type : SubjectType.values()) {
+                Bitmap subject1Image = subject1.getImage(subject1Type);
+                for (String subject2Name : _dataset.keySet()) {
+                    Subject subject2 = _dataset.get(subject2Name);
+                    for (SubjectType subject2Type : SubjectType.values()) {
+                        Bitmap subject2Image = subject2.getImage(subject2Type);
+                        if (subject1Name.equals(subject2Name) && subject1Type == subject2Type) { // Exclude same pictures
+                            continue;
+                        }
+                        double featureDistance = _recognition.compare(subject1Image, subject2Image);
+                        try {
+                            if (!subject1Name.equals(subject2Name)) {
+                                out.write(";"+featureDistance+System.lineSeparator());
+                                //features[total][0] = featureDistance;
+                                //features[total][1] = 0.0;
+                                //Log.i("FaceDetectionApp", "falsePositive! (" + subject1Name + "_" + subject1Type + "|" + subject2Name + "_" + subject2Type + ") " + featureDistance);
                             } else {
-                                if (subject1Name.equals(subject2Name)) {
-                                    falseNegative++;
-                                    //Log.i("FaceDetectionApp", "falseNegative! (" + subject1Name + "_" + subject1Type + "|" + subject2Name + "_" + subject2Type + ") " + featureDistance);
-                                }
+                                out.write(featureDistance+";"+System.lineSeparator());
+                                //features[total][0] = featureDistance;
+                                //features[total][1] = 1.0;
+                                //Log.i("FaceDetectionApp", "falseNegative! (" + subject1Name + "_" + subject1Type + "|" + subject2Name + "_" + subject2Type + ") " + featureDistance);
                             }
-                            total++;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        total++;
+                        if (total % 1000 == 0) {
+                            Log.i("FaceDetectionApp", String.valueOf(total));
                         }
                     }
                 }
             }
-            Log.i("FaceDetectionApp", "Threshold: " + threshold);
-            Log.i("FaceDetectionApp", "Number of false positive: " + falsePositive);
-            Log.i("FaceDetectionApp", "Number of false negative: " + falseNegative);
-            int totalFalse = falsePositive+falseNegative;
-            Log.i("FaceDetectionApp", "Total false: " + totalFalse);
-            Log.i("FaceDetectionApp", "Recognition rate: " + (100.0 - ((float)totalFalse*100.0/(float)total)));
-            Log.i("FaceDetectionApp", "Total comparison: " + total);
-            falsePositive = 0;
-            falseNegative = 0;
-            total = 0;
+        }
+        Log.i("FaceDetectionApp", "Total comparison: " + total);
+
+        try {
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
