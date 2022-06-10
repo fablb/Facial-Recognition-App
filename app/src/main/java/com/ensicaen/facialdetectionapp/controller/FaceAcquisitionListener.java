@@ -69,6 +69,7 @@ public class FaceAcquisitionListener extends FaceListener {
             int meanDistance = boundsCenter.meanDistance(_faceBoundsCenter);
             _faceBoundsCenter.add(boundsCenter);
 
+            /* Avoid blur image */
             if (meanDistance > 10) {
                 SingleToast.show(_cameraView, "Face or mobile phone is moving", Toast.LENGTH_SHORT);
                 return;
