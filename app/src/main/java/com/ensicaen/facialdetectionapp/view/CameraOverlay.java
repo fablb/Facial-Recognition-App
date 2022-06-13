@@ -20,6 +20,7 @@ import java.util.List;
 public class CameraOverlay extends View implements FrameListener {
     private ArrayList<Rect> faceBounds;
     private List<PointF> faceContours;
+    private Rect centerBounds;
     private Paint paint;
     private int imageWidth;
     private int imageHeight;
@@ -37,12 +38,19 @@ public class CameraOverlay extends View implements FrameListener {
         paint.setColor(Color.rgb(0, 255, 0));
         paint.setStrokeWidth(6);
         paint.setStyle(Paint.Style.STROKE);
+        centerBounds = null;
     }
 
     @Override
-    public void setImageSourceInfo(int width, int height, boolean isFlipped) {
-        imageWidth = width;
-        imageHeight = height;
+    public void setImageSourceInfo(int width, int height, int rotationDegrees, boolean isFlipped) {
+        /* Swap width and height for drawing depending on device orientation */
+        if (rotationDegrees == 0 || rotationDegrees == 180) {
+            imageWidth = width;
+            imageHeight = height;
+        } else {
+            imageWidth = height;
+            imageHeight = width;
+        }
         isImageFlipped = isFlipped;
         updateTransformation();
     }
@@ -62,6 +70,10 @@ public class CameraOverlay extends View implements FrameListener {
                 canvas.drawCircle(point.x, point.y, 1, paint);
             }
         }
+
+        if(centerBounds != null) {
+            canvas.drawRect(centerBounds, paint);
+        }
     }
 
     @Override
@@ -73,6 +85,13 @@ public class CameraOverlay extends View implements FrameListener {
             }
             invalidate();
         }
+    }
+
+    @Override
+    public void drawCenterBounds(Rect center, int color) {
+        paint.setColor(color);
+        centerBounds = translateRect(center);
+        invalidate();
     }
 
     @Override

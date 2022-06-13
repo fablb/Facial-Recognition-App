@@ -65,7 +65,7 @@ public class CameraView extends AppCompatActivity {
         if (_cameraType.equals("detection")) {
             frameAnalyzer.addFaceListener(new FaceDetectorListener(cameraOverlay, PreferenceManager.getDefaultSharedPreferences(this)));
         } else if (_cameraType.equals("acquisition")) {
-            frameAnalyzer.addFaceListener(new FaceAcquisitionListener(this));
+            frameAnalyzer.addFaceListener(new FaceAcquisitionListener(cameraOverlay, this));
         }
         imageAnalysis.setAnalyzer(Runnable::run, frameAnalyzer);
 

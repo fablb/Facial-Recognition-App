@@ -10,8 +10,8 @@ import com.google.mlkit.vision.face.FaceLandmark;
 
 public class FaceUtils {
 
-    /* Check if face is centered in image */
-    public static boolean isCentered(Rect faceBounds, int w, int h, boolean imageFlipped) {
+    /* Return image center rect which hold face */
+    public static Rect getCenter(int w, int h, boolean imageFlipped) {
         int offsetX;
         int offsetY;
         int width = w;
@@ -23,7 +23,7 @@ public class FaceUtils {
             width = h;
             height = w;
         }
-        offsetX = width / 10;
+        offsetX = width / 8;
         offsetY = height / 10;
 
         /* In portrait mode rect bounds are swapped compare to landscape */
@@ -33,7 +33,7 @@ public class FaceUtils {
             center = new Rect(width - offsetX,height - offsetY, offsetX, offsetY);
         }
 
-        return center.contains(faceBounds);
+        return center;
     }
 
     public static boolean isStraight(float eulerX, float eulerY, float eulerZ) {

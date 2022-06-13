@@ -52,13 +52,8 @@ public class FaceDetectorListener extends FaceListener {
             //    FrameAnalyzer.saveFrame("files/"+String.valueOf(_frameProxy.getImage().getTimestamp()), faceBitmap);
             //}
 
-            /* Swap width and height for drawing depending on device orientation */
             int rotationDegrees = _frameProxy.getImageInfo().getRotationDegrees();
-            if (rotationDegrees == 0 || rotationDegrees == 180) {
-                _frameListener.setImageSourceInfo(_image.getWidth(), _image.getHeight(), true);
-            } else {
-                _frameListener.setImageSourceInfo(_image.getHeight(), _image.getWidth(), true);
-            }
+            _frameListener.setImageSourceInfo(_image.getWidth(), _image.getHeight(), rotationDegrees, true);
 
             _frameListener.drawFacePoints(contours);
             _frameListener.drawFaceBounds(bounds);
