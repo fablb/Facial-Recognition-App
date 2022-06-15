@@ -18,7 +18,25 @@
             android:layout_marginTop="80dp"
             android:gravity="center"
             android:textSize="32dp"
-            android:text="Face recognition app"/>
+            android:text="Facial recognition app"/>
+
+        <ImageView
+            android:id="@+id/registerDoneImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="200dp"
+            android:visibility="invisible"
+            android:src="@drawable/ic_baseline_check_circle_outline_24" />
+
+        <TextView
+            android:id="@+id/registerDoneText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="50dp"
+            android:textSize="20dp"
+            android:textAlignment="center"
+            android:visibility="invisible"
+            android:text=""/>
 
         <LinearLayout
             android:layout_width="match_parent"

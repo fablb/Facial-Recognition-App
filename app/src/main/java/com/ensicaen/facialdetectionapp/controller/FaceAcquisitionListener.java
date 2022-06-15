@@ -85,8 +85,6 @@ public class FaceAcquisitionListener extends FaceListener {
             SingleToast.clear();
             Bitmap cropBitmap = BitmapUtils.getCropBitmap(_frameProxy, bounds);
             _cameraView.close(_lbp.compute(cropBitmap));
-            //DBController db = DBController.getInstance(_cameraView);
-            //db.createProfile("Fabien", features);
 
             //Log.i("FaceDetectionApp", p.get_name() + " " + p.get_date() + " " + Arrays.toString(p.get_features()));
             //Profile b = db.searchByName("Fabien")[0];

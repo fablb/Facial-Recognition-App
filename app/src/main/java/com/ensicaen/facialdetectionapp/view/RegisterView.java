@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.ensicaen.facialdetectionapp.R;
+import com.ensicaen.facialdetectionapp.controller.DBController;
 
 import java.util.Arrays;
 
@@ -49,6 +50,13 @@ public class RegisterView extends Activity {
             if (resultCode == Activity.RESULT_OK) {
                 int[] features = data.getIntArrayExtra("FEATURES_RESULT");
                 Log.i("FaceDetectionApp", Arrays.toString(features));
+                DBController db = DBController.getInstance(this);
+                String userName = _nameInput.getText().toString();
+                db.createProfile(_nameInput.getText().toString(), features);
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("USER_NAME", userName);
+                setResult(RESULT_OK, resultIntent);
+                finish();
             }
         }
     }
