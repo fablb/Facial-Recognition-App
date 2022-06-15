@@ -1,40 +1,34 @@
 package com.ensicaen.facialdetectionapp.controller;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.Log;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.ensicaen.facialdetectionapp.R;
 import com.ensicaen.facialdetectionapp.utils.BitmapUtils;
 import com.ensicaen.facialdetectionapp.utils.FaceUtils;
+import com.ensicaen.facialdetectionapp.utils.LBP;
 import com.ensicaen.facialdetectionapp.utils.Point2D;
 import com.ensicaen.facialdetectionapp.utils.SingleToast;
 import com.ensicaen.facialdetectionapp.utils.SizedArrayList;
 import com.ensicaen.facialdetectionapp.view.CameraView;
-import com.ensicaen.facialdetectionapp.view.MainActivity;
 import com.google.mlkit.vision.face.Face;
 
-import java.nio.Buffer;
-import java.nio.IntBuffer;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 public class FaceAcquisitionListener extends FaceListener {
     private FrameListener _drawListener;
     private CameraView _cameraView;
     private SizedArrayList<Point2D> _faceBoundsCenter;
+    private LBP _lbp;
 
     public FaceAcquisitionListener(FrameListener drawListener, CameraView cameraView) {
         _drawListener = drawListener;
         _cameraView = cameraView;
         _faceBoundsCenter = new SizedArrayList<>(6);
+        _lbp = new LBP();
     }
 
     @SuppressLint("UnsafeOptInUsageError")
@@ -89,7 +83,15 @@ public class FaceAcquisitionListener extends FaceListener {
             }
             _drawListener.drawCenterBounds(centerBounds, Color.GREEN);
             SingleToast.clear();
-            ((ImageView)_cameraView.findViewById(R.id.face_acquisition)).setImageBitmap(BitmapUtils.getCropBitmap(_frameProxy, bounds));
+            Bitmap cropBitmap = BitmapUtils.getCropBitmap(_frameProxy, bounds);
+            _cameraView.close(_lbp.compute(cropBitmap));
+            //DBController db = DBController.getInstance(_cameraView);
+            //db.createProfile("Fabien", features);
+
+            //Log.i("FaceDetectionApp", p.get_name() + " " + p.get_date() + " " + Arrays.toString(p.get_features()));
+            //Profile b = db.searchByName("Fabien")[0];
+            //Log.i("FaceDetectionApp", "Search: " + b.get_name() + " " + b.get_date() + " " + Arrays.toString(b.get_features()));
+            //((ImageView)_cameraView.findViewById(R.id.face_acquisition)).setImageBitmap(cropBitmap);
         }
     }
 

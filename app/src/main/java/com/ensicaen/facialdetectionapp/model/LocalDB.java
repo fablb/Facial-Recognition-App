@@ -3,25 +3,27 @@ package com.ensicaen.facialdetectionapp.model;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.ensicaen.facialdetectionapp.utils.MySQLiteOpenHelper;
 
 import java.util.Date;
 
 public class LocalDB {
-    private String _bdName = "bdProfil.sqlite";
+    private String _bdName = "dbFaceRecognition.sqlite";
     private Integer _version = 1;
     private MySQLiteOpenHelper _bdAccess;
     private SQLiteDatabase _bd;
 
     public LocalDB(Context context) {
+        Log.i("FaceDetectionApp", "LocalDB");
         _bdAccess = new MySQLiteOpenHelper(context, _bdName, null, _version);
     }
 
     public void add(Profile profile) {
         _bd = _bdAccess.getWritableDatabase();
         String req = "INSERT INTO profil(name, features, registred_date) VALUES ";
-        req += "(\'"+ profile.get_name() +"\',\'"+ profile.convertFeaturesToString() +"\',\'"+ profile.get_date() +"\')";
+        req += "(\'"+ profile.get_name() +"\',\'"+ profile.convertFeaturesToString() +"\',\'"+ profile.get_date() +"\');";
         _bd.execSQL(req);
     }
 

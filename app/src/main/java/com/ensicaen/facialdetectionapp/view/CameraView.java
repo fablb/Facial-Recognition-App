@@ -1,5 +1,6 @@
 package com.ensicaen.facialdetectionapp.view;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -71,6 +72,13 @@ public class CameraView extends AppCompatActivity {
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageAnalysis);
+    }
+
+    public void close(int[] features) {
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("FEATURES_RESULT", features);
+        setResult(RESULT_OK, resultIntent);
+        finish();
     }
 
     @Override

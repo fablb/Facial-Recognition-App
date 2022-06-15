@@ -3,13 +3,14 @@ package com.ensicaen.facialdetectionapp.utils;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
 public class MySQLiteOpenHelper extends SQLiteOpenHelper {
 
     private String creation = "CREATE TABLE profil ("
-            + "id INTEGER PRIMARY KEY ,"
+            + "id INTEGER PRIMARY KEY,"
             + "name TEXT NOT NULL,"
             + "features TEXT NOT NULL,"
             + "registred_date TEXT NOT NULL);";

@@ -11,13 +11,13 @@ public class Profile {
     public Profile(String name, Date date) {
         _name = name;
         _date = date;
-        _features = new int[156];
+        _features = new int[256];
     }
 
     public Profile(String name, int[] features, Date date) {
         _name = name;
         _date = date;
-        _features = Arrays.copyOf(features, 156);
+        _features = Arrays.copyOf(features, 256);
     }
 
     public Profile(String name, String features, Date date) {

@@ -33,6 +33,9 @@
         <activity
             android:name=".view.CameraView"
             android:exported="true" />
+        <activity
+            android:name=".view.RegisterView"
+            android:exported="true" />
     </application>
 
 </manifest>
