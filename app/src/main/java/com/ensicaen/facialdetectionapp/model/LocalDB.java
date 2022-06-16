@@ -16,7 +16,6 @@ public class LocalDB {
     private SQLiteDatabase _bd;
 
     public LocalDB(Context context) {
-        Log.i("FaceDetectionApp", "LocalDB");
         _bdAccess = new MySQLiteOpenHelper(context, _bdName, null, _version);
     }
 
@@ -36,8 +35,11 @@ public class LocalDB {
             return null;
         }
 
+        cursor.moveToFirst();
         Profile profile = new Profile(cursor.getString(1), cursor.getString(2), new Date());
         cursor.close();
+
+        Log.i("FaceDetectionApp", profile.get_name() + profile.get_date());
 
         return profile;
     }

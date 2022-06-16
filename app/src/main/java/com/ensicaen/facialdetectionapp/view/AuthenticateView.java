@@ -9,7 +9,9 @@ import android.widget.Toast;
 
 import com.ensicaen.facialdetectionapp.R;
 import com.ensicaen.facialdetectionapp.controller.DBController;
+import com.ensicaen.facialdetectionapp.model.Profile;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 public class AuthenticateView extends Activity {
@@ -30,14 +32,22 @@ public class AuthenticateView extends Activity {
             if (name.isEmpty()) {
                 Toast.makeText(AuthenticateView.this, "Name is empty", Toast.LENGTH_SHORT).show();
             } else {
-                enableFaceAuthentication();
+                Log.i("FaceDetectionApp", "authView");
+                Profile user = DBController.getInstance(this).getProfile(name);
+                if (user == null) {
+                    Toast.makeText(AuthenticateView.this, "User \'"+ name +"\' is not in the database", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                enableFaceAuthentication(user);
             }
         });
     }
 
-    private void enableFaceAuthentication() {
+    private void enableFaceAuthentication(Profile user) {
+        Log.i("FaceDetectionApp", "enableFaceAuth");
         Intent intent = new Intent(this, CameraView.class);
         intent.putExtra("type", "authentication");
+        intent.putExtra("user", user);
         startActivityForResult(intent, AUTHENTICATION_RESULT_CODE);
     }
 

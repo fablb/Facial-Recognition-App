@@ -22,8 +22,10 @@ import androidx.preference.PreferenceManager;
 import com.ensicaen.facialdetectionapp.R;
 import com.ensicaen.facialdetectionapp.SettingsActivity;
 import com.ensicaen.facialdetectionapp.controller.FaceAcquisitionListener;
+import com.ensicaen.facialdetectionapp.controller.FaceAuthenticationListener;
 import com.ensicaen.facialdetectionapp.controller.FaceDetectorListener;
 import com.ensicaen.facialdetectionapp.controller.FrameAnalyzer;
+import com.ensicaen.facialdetectionapp.model.Profile;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Arrays;
@@ -72,7 +74,7 @@ public class CameraView extends AppCompatActivity {
         } else if (_cameraType.equals("acquisition")) {
             frameAnalyzer.addFaceListener(new FaceAcquisitionListener(cameraOverlay, this));
         } else if (_cameraType.equals("authentication")) {
-            frameAnalyzer.addFaceListener(new FaceAcquisitionListener(cameraOverlay, this));
+            frameAnalyzer.addFaceListener(new FaceAuthenticationListener(cameraOverlay, this, (Profile)getIntent().getSerializableExtra("user")));
         }
         imageAnalysis.setAnalyzer(Runnable::run, frameAnalyzer);
 

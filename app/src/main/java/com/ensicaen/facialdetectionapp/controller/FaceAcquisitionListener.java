@@ -84,7 +84,6 @@ public class FaceAcquisitionListener extends FaceListener {
             _drawListener.drawCenterBounds(centerBounds, Color.GREEN);
             SingleToast.clear();
             Bitmap cropBitmap = BitmapUtils.getCropBitmap(_frameProxy, bounds);
-            Log.i("FaceDetectionApp", "test");
             _cameraView.close(_lbp.compute(cropBitmap));
 
             //Log.i("FaceDetectionApp", p.get_name() + " " + p.get_date() + " " + Arrays.toString(p.get_features()));

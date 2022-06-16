@@ -87,13 +87,7 @@ public class FaceAuthenticationListener extends FaceListener {
             _drawListener.drawCenterBounds(centerBounds, Color.GREEN);
             SingleToast.clear();
             Bitmap cropBitmap = BitmapUtils.getCropBitmap(_frameProxy, bounds);
-            Log.i("FaceDetectionApp", "test");
-            _cameraView.close(_lbp.compute(cropBitmap));
-
-            //Log.i("FaceDetectionApp", p.get_name() + " " + p.get_date() + " " + Arrays.toString(p.get_features()));
-            //Profile b = db.searchByName("Fabien")[0];
-            //Log.i("FaceDetectionApp", "Search: " + b.get_name() + " " + b.get_date() + " " + Arrays.toString(b.get_features()));
-            //((ImageView)_cameraView.findViewById(R.id.face_acquisition)).setImageBitmap(cropBitmap);
+            Log.i("FaceDetectionApp", Double.toString(_lbp.compare(cropBitmap, _user.getFeatures())));
         }
     }
 

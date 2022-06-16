@@ -33,6 +33,13 @@ public class LBP {
         return MathUtils.cosineDistance(aHistogram.getValues(), bHistogram.getValues());
     }
 
+    public double compare(Bitmap x, int[] features) {
+        FastBitmap a = new FastBitmap(getMutableBitmap(x));
+        a.toGrayscale();
+        ImageHistogram aHistogram = _lbp.ComputeFeatures(a);
+        return MathUtils.cosineDistance(aHistogram.getValues(), features);
+    }
+
     public Bitmap getMutableBitmap(Bitmap a) {
         if (a.isMutable()) {
             return a;
