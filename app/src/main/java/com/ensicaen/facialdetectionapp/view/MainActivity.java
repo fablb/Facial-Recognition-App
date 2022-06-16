@@ -9,26 +9,29 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ensicaen.facialdetectionapp.R;
-import com.ensicaen.facialdetectionapp.controller.DBController;
-
-import java.util.Arrays;
 
 public class MainActivity extends Activity {
     private static final String[] CAMERA_PERMISSION = new String[]{Manifest.permission.CAMERA};
     private static final int CAMERA_REQUEST_CODE = 10;
-    private static final int USER_NAME_CODE = 2;
+    private static final int REGISTER_CODE = 2;
+    private static final int AUTHENTICATE_CODE = 3;
+    private ImageView _imageStatus;
+    private TextView _textStatus;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        _imageStatus = findViewById(R.id.statusImage);
+        _textStatus = findViewById(R.id.statusText);
         addRegisterButtonListener();
-        addCameraButtonListener();
+        addAuthenticateButtonListener();
     }
 
     private void addRegisterButtonListener() {
@@ -39,6 +42,19 @@ public class MainActivity extends Activity {
                 requestPermission();
                 if (hasCameraPermission()) {
                     enableRegisterView();
+                }
+            }
+        });
+    }
+
+    private void addAuthenticateButtonListener() {
+        findViewById(R.id.cameraButton).setOnClickListener(v -> {
+            if (hasCameraPermission()) {
+                enableAuthenticateView();
+            } else {
+                requestPermission();
+                if (hasCameraPermission()) {
+                    enableAuthenticateView();
                 }
             }
         });
@@ -72,10 +88,14 @@ public class MainActivity extends Activity {
         );
     }
 
+    private void enableAuthenticateView() {
+        Intent intent = new Intent(this, AuthenticateView.class);
+        startActivityForResult(intent, AUTHENTICATE_CODE);
+    }
+
     private void enableRegisterView() {
         Intent intent = new Intent(this, RegisterView.class);
-        intent.putExtra("type", "acquisition");
-        startActivityForResult(intent, USER_NAME_CODE);
+        startActivityForResult(intent, REGISTER_CODE);
     }
 
     private void enableFaceDetection() {
@@ -87,13 +107,24 @@ public class MainActivity extends Activity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == USER_NAME_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == REGISTER_CODE) {
                 String userName = data.getStringExtra("USER_NAME");
-                findViewById(R.id.registerDoneImage).setVisibility(View.VISIBLE);
-                TextView registerDoneText = findViewById(R.id.registerDoneText);
-                registerDoneText.setText(userName + " has been added");
-                registerDoneText.setVisibility(View.VISIBLE);
+                _imageStatus.setImageResource(R.drawable.ic_baseline_check_circle_outline_24);
+                _textStatus.setText(userName + " has been added");
+                _imageStatus.setVisibility(View.VISIBLE);
+                _textStatus.setVisibility(View.VISIBLE);
+            } else if (requestCode == AUTHENTICATE_CODE) {
+                boolean success = data.getBooleanExtra("AUTHENTICATE_RESULT", false);
+                if (success) {
+                    _imageStatus.setImageResource(R.drawable.ic_baseline_check_circle_outline_24);
+                    _textStatus.setText("Successful authentication!");
+                } else {
+                    _imageStatus.setImageResource(R.drawable.ic_baseline_cancel_24);
+                    _textStatus.setText("Authentication failed!");
+                }
+                _imageStatus.setVisibility(View.VISIBLE);
+                _textStatus.setVisibility(View.VISIBLE);
             }
         }
     }

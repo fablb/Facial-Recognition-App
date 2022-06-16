@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.RegisterView">
+    tools:context=".view.AuthenticateView">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,16 +14,16 @@
         android:orientation="vertical">
 
         <EditText
-            android:id="@+id/registerNameInput"
-            android:width="250dp"
+            android:id="@+id/authenticateNameInput"
+            android:width="280dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
             android:layout_marginTop="200dp"
-            android:hint="Enter your name to register.." />
+            android:hint="Enter your name to authenticate.." />
 
         <Button
-            android:id="@+id/registerContinueButton"
+            android:id="@+id/authenticateContinueButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="200dp"

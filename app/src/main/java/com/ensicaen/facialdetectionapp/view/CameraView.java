@@ -3,6 +3,7 @@ package com.ensicaen.facialdetectionapp.view;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,6 +26,7 @@ import com.ensicaen.facialdetectionapp.controller.FaceDetectorListener;
 import com.ensicaen.facialdetectionapp.controller.FrameAnalyzer;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 
@@ -63,9 +65,13 @@ public class CameraView extends AppCompatActivity {
 
         FrameAnalyzer frameAnalyzer = new FrameAnalyzer();
 
+        Log.i("FaceDetectionApp", "cameraView");
+
         if (_cameraType.equals("detection")) {
             frameAnalyzer.addFaceListener(new FaceDetectorListener(cameraOverlay, PreferenceManager.getDefaultSharedPreferences(this)));
         } else if (_cameraType.equals("acquisition")) {
+            frameAnalyzer.addFaceListener(new FaceAcquisitionListener(cameraOverlay, this));
+        } else if (_cameraType.equals("authentication")) {
             frameAnalyzer.addFaceListener(new FaceAcquisitionListener(cameraOverlay, this));
         }
         imageAnalysis.setAnalyzer(Runnable::run, frameAnalyzer);
@@ -75,8 +81,16 @@ public class CameraView extends AppCompatActivity {
     }
 
     public void close(int[] features) {
+        Log.i("FaceDetectionApp", Arrays.toString(features));
         Intent resultIntent = new Intent();
         resultIntent.putExtra("FEATURES_RESULT", features);
+        setResult(RESULT_OK, resultIntent);
+        finish();
+    }
+
+    public void close(boolean success) {
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("AUTHENTICATE_RESULT", success);
         setResult(RESULT_OK, resultIntent);
         finish();
     }

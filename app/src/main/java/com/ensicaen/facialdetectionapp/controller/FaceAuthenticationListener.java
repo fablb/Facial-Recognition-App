@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.ensicaen.facialdetectionapp.model.Profile;
 import com.ensicaen.facialdetectionapp.utils.BitmapUtils;
 import com.ensicaen.facialdetectionapp.utils.FaceUtils;
 import com.ensicaen.facialdetectionapp.utils.LBP;
@@ -18,17 +19,19 @@ import com.google.mlkit.vision.face.Face;
 
 import java.util.List;
 
-public class FaceAcquisitionListener extends FaceListener {
+public class FaceAuthenticationListener extends FaceListener {
     private FrameListener _drawListener;
     private CameraView _cameraView;
     private SizedArrayList<Point2D> _faceBoundsCenter;
     private LBP _lbp;
+    private Profile _user;
 
-    public FaceAcquisitionListener(FrameListener drawListener, CameraView cameraView) {
+    public FaceAuthenticationListener(FrameListener drawListener, CameraView cameraView, Profile user) {
         _drawListener = drawListener;
         _cameraView = cameraView;
         _faceBoundsCenter = new SizedArrayList<>(6);
         _lbp = new LBP();
+        _user = user;
     }
 
     @SuppressLint("UnsafeOptInUsageError")

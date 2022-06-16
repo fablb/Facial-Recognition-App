@@ -12,9 +12,12 @@ public class SingleToast {
             _toast = Toast.makeText(context.getApplicationContext(), text, duration);
             _toast.show();
         } else {
-            if (_toast.getView().getWindowVisibility() != View.VISIBLE) { // Avoid Toast overlap
-                _toast.setText(text);
-                _toast.show();
+            View toastView = _toast.getView();
+            if (toastView != null) {
+                if (toastView.getWindowVisibility() != View.VISIBLE) { // Avoid Toast overlap
+                    _toast.setText(text);
+                    _toast.show();
+                }
             }
         }
     }

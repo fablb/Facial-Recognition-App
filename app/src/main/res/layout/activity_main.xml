@@ -21,7 +21,7 @@
             android:text="Facial recognition app"/>
 
         <ImageView
-            android:id="@+id/registerDoneImage"
+            android:id="@+id/statusImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="200dp"
@@ -29,7 +29,7 @@
             android:src="@drawable/ic_baseline_check_circle_outline_24" />
 
         <TextView
-            android:id="@+id/registerDoneText"
+            android:id="@+id/statusText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="50dp"

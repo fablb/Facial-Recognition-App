@@ -23,14 +23,9 @@ public class Profile {
     public Profile(String name, String features, Date date) {
         _name = name;
         _date = date;
-        int i = 0;
-        String c = ""+features.charAt(i);
-        while( c !="]" ) {
-            if ((c != "[") && (c != ",") ) {
-                _features[i] = Integer.parseInt(c);
-            }
-            i++;
-            c = ""+features.charAt(i);
+        String[] featuresSplit = features.split(",");
+        for (int i = 0; i < featuresSplit.length; i++) {
+            _features[i] = Integer.parseInt(featuresSplit[i]);
         }
     }
 
@@ -47,7 +42,7 @@ public class Profile {
     }
 
     public String convertFeaturesToString() {
-        return Arrays.toString(_features);
+        return Arrays.toString(_features).replace("[","").replace("]","");
     }
 
     public void set_name(String _name) {

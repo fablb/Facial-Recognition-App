@@ -12,46 +12,43 @@ import com.ensicaen.facialdetectionapp.controller.DBController;
 
 import java.util.Arrays;
 
-public class RegisterView extends Activity {
+public class AuthenticateView extends Activity {
     private EditText _nameInput;
-    private static final int FEATURES_RESULT_CODE = 1;
+    private static final int AUTHENTICATION_RESULT_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.register_view);
-        _nameInput = findViewById(R.id.registerNameInput);
+        setContentView(R.layout.authenticate_view);
+        _nameInput = findViewById(R.id.authenticateNameInput);
         addContinueButtonListener();
     }
 
     private void addContinueButtonListener() {
-        findViewById(R.id.registerContinueButton).setOnClickListener(v -> {
+        findViewById(R.id.authenticateContinueButton).setOnClickListener(v -> {
             String name = _nameInput.getText().toString();
             if (name.isEmpty()) {
-                Toast.makeText(RegisterView.this, "Name is empty", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AuthenticateView.this, "Name is empty", Toast.LENGTH_SHORT).show();
             } else {
-                enableFaceAcquisition();
+                enableFaceAuthentication();
             }
         });
     }
 
-    private void enableFaceAcquisition() {
+    private void enableFaceAuthentication() {
         Intent intent = new Intent(this, CameraView.class);
-        intent.putExtra("type", "acquisition");
-        startActivityForResult(intent, FEATURES_RESULT_CODE);
+        intent.putExtra("type", "authentication");
+        startActivityForResult(intent, AUTHENTICATION_RESULT_CODE);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == FEATURES_RESULT_CODE) {
+        if (requestCode == AUTHENTICATION_RESULT_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                int[] features = data.getIntArrayExtra("FEATURES_RESULT");
-                DBController db = DBController.getInstance(this);
-                String userName = _nameInput.getText().toString();
-                db.createProfile(_nameInput.getText().toString(), features);
+                boolean success = data.getBooleanExtra("AUTHENTICATE_RESULT", false);
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra("USER_NAME", userName);
+                resultIntent.putExtra("AUTHENTICATE_RESULT", success);
                 setResult(RESULT_OK, resultIntent);
                 finish();
             }

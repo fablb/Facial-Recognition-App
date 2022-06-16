@@ -27,20 +27,18 @@ public class LocalDB {
         _bd.execSQL(req);
     }
 
-    public Profile[] searchByName(String name) {
-        String p_name = "", p_features = "";
+    public Profile searchByName(String name) {
         _bd = _bdAccess.getReadableDatabase();
         String req = "SELECT * FROM profil WHERE name = \'" + name + "\'";
         Cursor cursor = _bd.rawQuery(req, null);
-        Profile[] profiles = new Profile[cursor.getCount()];
-        cursor.moveToFirst();
-        for (int i = 0; i < cursor.getCount(); i++) {
-            p_name = cursor.getString(1);
-            p_features = cursor.getString(2);
-            profiles[i] = new Profile(p_name, p_features, new Date());
-            cursor.moveToNext();
+
+        if (cursor.getCount() == 0) {
+            return null;
         }
+
+        Profile profile = new Profile(cursor.getString(1), cursor.getString(2), new Date());
         cursor.close();
-        return profiles;
+
+        return profile;
     }
 }

@@ -40,4 +40,8 @@ public final class DBController {
         _profile = new Profile(name, features, new Date());
         _localAccess.add(_profile);
     }
+
+    public Profile getProfile(String name) {
+        return _localAccess.searchByName(name);
+    }
 }
