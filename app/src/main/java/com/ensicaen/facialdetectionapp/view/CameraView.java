@@ -37,6 +37,7 @@ public class CameraView extends AppCompatActivity {
     private CameraOverlay cameraOverlay;
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private String _cameraType;
+    private ImageAnalysis _imageAnalysis;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,11 +64,9 @@ public class CameraView extends AppCompatActivity {
                 .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
                 .build();
 
-        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+        _imageAnalysis = new ImageAnalysis.Builder().build();
 
         FrameAnalyzer frameAnalyzer = new FrameAnalyzer();
-
-        Log.i("FaceDetectionApp", "cameraView");
 
         if (_cameraType.equals("detection")) {
             frameAnalyzer.addFaceListener(new FaceDetectorListener(cameraOverlay, PreferenceManager.getDefaultSharedPreferences(this)));
@@ -76,14 +75,15 @@ public class CameraView extends AppCompatActivity {
         } else if (_cameraType.equals("authentication")) {
             frameAnalyzer.addFaceListener(new FaceAuthenticationListener(cameraOverlay, this, (Profile)getIntent().getSerializableExtra("user")));
         }
-        imageAnalysis.setAnalyzer(Runnable::run, frameAnalyzer);
+
+        _imageAnalysis.setAnalyzer(Runnable::run, frameAnalyzer);
 
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
-        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, imageAnalysis);
+        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview, _imageAnalysis);
     }
 
     public void close(int[] features) {
-        Log.i("FaceDetectionApp", Arrays.toString(features));
+        _imageAnalysis.clearAnalyzer();
         Intent resultIntent = new Intent();
         resultIntent.putExtra("FEATURES_RESULT", features);
         setResult(RESULT_OK, resultIntent);
@@ -91,6 +91,7 @@ public class CameraView extends AppCompatActivity {
     }
 
     public void close(boolean success) {
+        _imageAnalysis.clearAnalyzer();
         Intent resultIntent = new Intent();
         resultIntent.putExtra("AUTHENTICATE_RESULT", success);
         setResult(RESULT_OK, resultIntent);

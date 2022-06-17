@@ -27,7 +27,7 @@ public class FaceAcquisitionListener extends FaceListener {
     public FaceAcquisitionListener(FrameListener drawListener, CameraView cameraView) {
         _drawListener = drawListener;
         _cameraView = cameraView;
-        _faceBoundsCenter = new SizedArrayList<>(6);
+        _faceBoundsCenter = new SizedArrayList<>(STABLE_SCREEN_FRAME_COUNT);
         _lbp = new LBP();
     }
 
@@ -76,7 +76,7 @@ public class FaceAcquisitionListener extends FaceListener {
             _faceBoundsCenter.add(boundsCenter);
 
             /* Avoid blur image */
-            if (meanDistance > 10) {
+            if (meanDistance > STABLE_SCREEN_THRESHOLD) {
                 SingleToast.show(_cameraView, "Face or mobile phone is moving", Toast.LENGTH_SHORT);
                 _drawListener.drawCenterBounds(centerBounds, Color.RED);
                 return;
@@ -84,7 +84,8 @@ public class FaceAcquisitionListener extends FaceListener {
             _drawListener.drawCenterBounds(centerBounds, Color.GREEN);
             SingleToast.clear();
             Bitmap cropBitmap = BitmapUtils.getCropBitmap(_frameProxy, bounds);
-            _cameraView.close(_lbp.compute(cropBitmap));
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(cropBitmap, 140, 140, true);
+            _cameraView.close(_lbp.compute(scaledBitmap));
 
             //Log.i("FaceDetectionApp", p.get_name() + " " + p.get_date() + " " + Arrays.toString(p.get_features()));
             //Profile b = db.searchByName("Fabien")[0];

@@ -25,13 +25,16 @@ public class FaceAuthenticationListener extends FaceListener {
     private SizedArrayList<Point2D> _faceBoundsCenter;
     private LBP _lbp;
     private Profile _user;
+    private int authenticationTry;
+    private static final double AUTH_THRESHOLD = 0.06;
 
     public FaceAuthenticationListener(FrameListener drawListener, CameraView cameraView, Profile user) {
         _drawListener = drawListener;
         _cameraView = cameraView;
-        _faceBoundsCenter = new SizedArrayList<>(6);
+        _faceBoundsCenter = new SizedArrayList<>(STABLE_SCREEN_FRAME_COUNT);
         _lbp = new LBP();
         _user = user;
+        authenticationTry = 0;
     }
 
     @SuppressLint("UnsafeOptInUsageError")
@@ -79,15 +82,31 @@ public class FaceAuthenticationListener extends FaceListener {
             _faceBoundsCenter.add(boundsCenter);
 
             /* Avoid blur image */
-            if (meanDistance > 10) {
+            if (meanDistance > STABLE_SCREEN_THRESHOLD) {
                 SingleToast.show(_cameraView, "Face or mobile phone is moving", Toast.LENGTH_SHORT);
                 _drawListener.drawCenterBounds(centerBounds, Color.RED);
                 return;
             }
             _drawListener.drawCenterBounds(centerBounds, Color.GREEN);
-            SingleToast.clear();
+
             Bitmap cropBitmap = BitmapUtils.getCropBitmap(_frameProxy, bounds);
-            Log.i("FaceDetectionApp", Double.toString(_lbp.compare(cropBitmap, _user.getFeatures())));
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(cropBitmap, 140, 140, true);
+
+            double similarityScore = _lbp.compare(scaledBitmap, _user.getFeatures());
+            Log.i("FaceDetectionApp", "similarity: " + similarityScore);
+            authenticationTry += 1;
+            if (similarityScore <= AUTH_THRESHOLD) {
+                SingleToast.clear();
+                _cameraView.close(true);
+            } else {
+                if (authenticationTry % 20 == 0) {
+                    SingleToast.show(_cameraView, "Authentication failed, retrying...", Toast.LENGTH_SHORT);
+                    if (authenticationTry == 100) {
+                        SingleToast.clear();
+                        _cameraView.close(false);
+                    }
+                }
+            }
         }
     }
 
