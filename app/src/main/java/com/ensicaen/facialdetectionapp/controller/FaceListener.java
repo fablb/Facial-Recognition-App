@@ -34,36 +34,19 @@ public abstract class FaceListener implements OnSuccessListener, OnFailureListen
     }
 
     public boolean lookAtTheCamera(List<PointF> rightEye, List<PointF> leftEye) {
-        return leftEyeLooking(leftEye) && rightEyeLooking(rightEye);
+        return eyeLooking(leftEye) && eyeLooking(rightEye);
     }
 
-    public boolean leftEyeLooking(List<PointF> leftEye) {
+    public boolean eyeLooking(List<PointF> eye) {
         int iris = 0;
-        int average = eyeAverageColor(leftEye);
+        int average = eyeAverageColor(eye);
 
-        Rect eye = new Rect((int)leftEye.get(3).x, (int)leftEye.get(3).y, (int)leftEye.get(11).x, (int)leftEye.get(11).y);
-        Bitmap bmp = BitmapUtils.getCropBitmap(_frameProxy, eye);
+        Rect eyeRect = new Rect((int)eye.get(3).x, (int)eye.get(3).y, (int)eye.get(11).x, (int)eye.get(11).y);
+        Bitmap bmp = BitmapUtils.getCropBitmap(_frameProxy, eyeRect);
 
         for (int row = 0; row < bmp.getHeight(); row++) {
             for (int column = 0;column < bmp.getWidth(); column++) {
                 if ( BitmapUtils.getPixelGray(bmp, column, row) < average ) {
-                    iris++;
-                }
-            }
-        }
-        return iris/(float)(bmp.getHeight()*bmp.getWidth()) > THRESHOLD;
-    }
-
-    public boolean rightEyeLooking(List<PointF> rightEye) {
-        int iris = 0;
-        int average = eyeAverageColor(rightEye);
-
-        Rect eye = new Rect((int)rightEye.get(3).x, (int)rightEye.get(3).y, (int)rightEye.get(11).x, (int)rightEye.get(11).y);
-        Bitmap bmp = BitmapUtils.getCropBitmap(_frameProxy, eye);
-
-        for (int row = 0; row < bmp.getHeight(); row++) {
-            for (int column = 0;column < bmp.getWidth(); column++) {
-                if (BitmapUtils.getPixelGray(bmp, column, row) < average ) {
                     iris++;
                 }
             }
