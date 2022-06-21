@@ -3,6 +3,7 @@ package com.ensicaen.facialdetectionapp.controller;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.util.Log;
 import android.widget.Toast;
@@ -15,6 +16,7 @@ import com.ensicaen.facialdetectionapp.utils.SingleToast;
 import com.ensicaen.facialdetectionapp.utils.SizedArrayList;
 import com.ensicaen.facialdetectionapp.view.CameraView;
 import com.google.mlkit.vision.face.Face;
+import com.google.mlkit.vision.face.FaceContour;
 
 import java.util.List;
 
@@ -63,6 +65,15 @@ public class FaceAcquisitionListener extends FaceListener {
                 return;
             }
 
+            List<PointF> rightEye = face.getContour(FaceContour.RIGHT_EYE).getPoints();
+            List<PointF> leftEye = face.getContour(FaceContour.LEFT_EYE).getPoints();
+
+            if(!lookAtTheCamera(rightEye, leftEye)) {
+                SingleToast.show(_cameraView, "Look at the screen please", Toast.LENGTH_SHORT);
+                _drawListener.drawCenterBounds(centerBounds, Color.RED);
+                return;
+            }
+
             Point2D boundsCenter = new Point2D(bounds.centerX(), bounds.centerY());
 
             /* Fill before computing mean movement */
@@ -93,6 +104,8 @@ public class FaceAcquisitionListener extends FaceListener {
             //((ImageView)_cameraView.findViewById(R.id.face_acquisition)).setImageBitmap(cropBitmap);
         }
     }
+
+
 
     @Override
     public void onFailure(Exception e) {

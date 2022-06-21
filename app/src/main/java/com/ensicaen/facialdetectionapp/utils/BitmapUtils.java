@@ -20,6 +20,7 @@ package com.ensicaen.facialdetectionapp.utils;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Rect;
 
 import androidx.camera.core.ImageProxy;
@@ -293,5 +294,14 @@ public class BitmapUtils {
             }
             rowStart += plane.getRowStride();
         }
+    }
+
+    public static int getPixelGray(Bitmap bmp, int x, int y) {
+        int pixel, red, green, blue;
+        pixel = bmp.getPixel(x, y);
+        red = Color.red(pixel);
+        green = Color.green(pixel);
+        blue = Color.blue(pixel);
+        return (red+green+blue)/3;
     }
 }
