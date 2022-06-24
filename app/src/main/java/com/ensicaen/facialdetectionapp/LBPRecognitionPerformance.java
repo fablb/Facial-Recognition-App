@@ -39,10 +39,12 @@ public class LBPRecognitionPerformance {
         int length = (int)(Math.pow(_dataset.keySet().size(), 2) * Math.pow(SubjectType.values().length, 2) - _dataset.keySet().size() * SubjectType.values().length);
         double[][] features = new double[length][2];
         int total = 0;
-        FileWriter out = null;
+        FileWriter genuineScores = null;
+        FileWriter imposterScores = null;
 
         try {
-            out = new FileWriter("/data/data/com.ensicaen.facialdetectionapp/results/lbpPerformanceFeatures.txt");
+            genuineScores = new FileWriter("/data/data/com.ensicaen.facialdetectionapp/results/genuineScores.txt");
+            imposterScores = new FileWriter("/data/data/com.ensicaen.facialdetectionapp/results/imposterScores.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -61,12 +63,12 @@ public class LBPRecognitionPerformance {
                         double featureDistance = _recognition.compare(subject1Image, subject2Image);
                         try {
                             if (!subject1Name.equals(subject2Name)) {
-                                out.write(";"+featureDistance+System.lineSeparator());
+                                imposterScores.write(featureDistance+System.lineSeparator());
                                 //features[total][0] = featureDistance;
                                 //features[total][1] = 0.0;
                                 //Log.i("FaceDetectionApp", "falsePositive! (" + subject1Name + "_" + subject1Type + "|" + subject2Name + "_" + subject2Type + ") " + featureDistance);
                             } else {
-                                out.write(featureDistance+";"+System.lineSeparator());
+                                genuineScores.write(featureDistance+System.lineSeparator());
                                 //features[total][0] = featureDistance;
                                 //features[total][1] = 1.0;
                                 //Log.i("FaceDetectionApp", "falseNegative! (" + subject1Name + "_" + subject1Type + "|" + subject2Name + "_" + subject2Type + ") " + featureDistance);
@@ -85,7 +87,8 @@ public class LBPRecognitionPerformance {
         Log.i("FaceDetectionApp", "Total comparison: " + total);
 
         try {
-            out.close();
+            genuineScores.close();
+            imposterScores.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

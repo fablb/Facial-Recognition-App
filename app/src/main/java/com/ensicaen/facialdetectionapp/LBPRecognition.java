@@ -25,7 +25,7 @@ public class LBPRecognition {
         b.toGrayscale();
         ImageHistogram aHistogram = _lbp.ComputeFeatures(a);
         ImageHistogram bHistogram = _lbp.ComputeFeatures(b);
-        return MathUtils.cosineDistance(aHistogram.getValues(), bHistogram.getValues());
+        return MathUtils.euclideanDistance(aHistogram.getValues(), bHistogram.getValues());
     }
 
     public Bitmap getMutableBitmap(Bitmap a) {

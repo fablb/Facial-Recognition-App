@@ -18,4 +18,15 @@ public class MathUtils {
 
         return 1.0D - sumProduct / (sumP * sumQ);
     }
+
+    public static double euclideanDistance(int[] x, int[] y) {
+        int d = 0;
+
+        for(int i = 0; i < x.length; ++i) {
+            int u = x[i] - y[i];
+            d += u * u;
+        }
+
+        return Math.sqrt(d);
+    }
 }
