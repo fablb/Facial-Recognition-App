@@ -11,4 +11,5 @@ public interface FrameListener {
     public void drawFaceBounds(Rect face);
     public void drawCenterBounds(Rect face, int color);
     public void drawFacePoints(List<PointF> Line);
+    public void drawPoints(List<PointF> points);
 }
