@@ -65,15 +65,6 @@ public class FaceAcquisitionListener extends FaceListener {
                 return;
             }
 
-            List<PointF> rightEye = face.getContour(FaceContour.RIGHT_EYE).getPoints();
-            List<PointF> leftEye = face.getContour(FaceContour.LEFT_EYE).getPoints();
-
-            if(!lookAtTheCamera(rightEye, leftEye)) {
-                SingleToast.show(_cameraView, "Look at the screen please", Toast.LENGTH_SHORT);
-                _drawListener.drawCenterBounds(centerBounds, Color.RED);
-                return;
-            }
-
             Point2D boundsCenter = new Point2D(bounds.centerX(), bounds.centerY());
 
             /* Fill before computing mean movement */
@@ -92,6 +83,21 @@ public class FaceAcquisitionListener extends FaceListener {
                 _drawListener.drawCenterBounds(centerBounds, Color.RED);
                 return;
             }
+
+            List<PointF> rightEye = face.getContour(FaceContour.RIGHT_EYE).getPoints();
+            List<PointF> leftEye = face.getContour(FaceContour.LEFT_EYE).getPoints();
+
+            if(!eyesOpen(rightEye, leftEye)) {
+                SingleToast.show(_cameraView, "Eyes closed", Toast.LENGTH_SHORT);
+                _drawListener.drawCenterBounds(centerBounds, Color.RED);
+                return;
+            }
+            if(!lookAtTheCamera(rightEye, leftEye)) {
+                SingleToast.show(_cameraView, "Look at the screen please", Toast.LENGTH_SHORT);
+                _drawListener.drawCenterBounds(centerBounds, Color.RED);
+                return;
+            }
+
             _drawListener.drawCenterBounds(centerBounds, Color.GREEN);
             SingleToast.clear();
             Bitmap cropBitmap = BitmapUtils.getCropBitmap(_frameProxy, bounds);
