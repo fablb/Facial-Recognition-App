@@ -91,15 +91,17 @@ public class FaceAcquisitionListener extends FaceListener {
             List<PointF> rightEye = face.getContour(FaceContour.RIGHT_EYE).getPoints();
             List<PointF> leftEye = face.getContour(FaceContour.LEFT_EYE).getPoints();
 
-            if (((rightEye.get(12).y-rightEye.get(4).y) < _rightEyeLenghtMax*0.60f) ||((leftEye.get(12).y-leftEye.get(4).y) < _leftEyeLenghtMax*0.60f)) {
+            Log.d("1", String.valueOf((leftEye.get(12).y-leftEye.get(4).y)/bounds.height())+" "+String.valueOf((rightEye.get(12).y-rightEye.get(4).y)/bounds.height()));
+
+            if (((rightEye.get(12).y-rightEye.get(4).y)/bounds.height() < _rightEyeLenghtMax*0.60f) ||((leftEye.get(12).y-leftEye.get(4).y)/bounds.height() < _leftEyeLenghtMax*0.60f)) {
                 Log.d("1", "T'AS CLIGNE MEC "+String.valueOf(leftEye.get(12).y-leftEye.get(4).y)+" "+String.valueOf(rightEye.get(12).y-rightEye.get(4).y));
                 Log.d("1", String.valueOf(_leftEyeLenghtMax)+" "+String.valueOf(_rightEyeLenghtMax));
             }
-            if ((rightEye.get(12).y-rightEye.get(4).y) > _rightEyeLenghtMax) {
-                _rightEyeLenghtMax = rightEye.get(12).y-rightEye.get(4).y;
+            if ((rightEye.get(12).y-rightEye.get(4).y)/bounds.height() > _rightEyeLenghtMax) {
+                _rightEyeLenghtMax = (rightEye.get(12).y-rightEye.get(4).y)/bounds.height();
             }
-            if ((leftEye.get(12).y-leftEye.get(4).y) > _leftEyeLenghtMax) {
-                _leftEyeLenghtMax = leftEye.get(12).y-leftEye.get(4).y;
+            if ((leftEye.get(12).y-leftEye.get(4).y)/bounds.height() > _leftEyeLenghtMax) {
+                _leftEyeLenghtMax = (leftEye.get(12).y-leftEye.get(4).y)/bounds.height();
             }
 
             if(!eyesOpen(rightEye, leftEye)) {
