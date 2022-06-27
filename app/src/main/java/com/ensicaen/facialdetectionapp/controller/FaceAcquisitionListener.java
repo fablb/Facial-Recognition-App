@@ -91,19 +91,6 @@ public class FaceAcquisitionListener extends FaceListener {
             List<PointF> rightEye = face.getContour(FaceContour.RIGHT_EYE).getPoints();
             List<PointF> leftEye = face.getContour(FaceContour.LEFT_EYE).getPoints();
 
-            Log.d("1", String.valueOf((leftEye.get(12).y-leftEye.get(4).y)/bounds.height())+" "+String.valueOf((rightEye.get(12).y-rightEye.get(4).y)/bounds.height()));
-
-            if (((rightEye.get(12).y-rightEye.get(4).y)/bounds.height() < _rightEyeLenghtMax*0.60f) ||((leftEye.get(12).y-leftEye.get(4).y)/bounds.height() < _leftEyeLenghtMax*0.60f)) {
-                Log.d("1", "T'AS CLIGNE MEC "+String.valueOf(leftEye.get(12).y-leftEye.get(4).y)+" "+String.valueOf(rightEye.get(12).y-rightEye.get(4).y));
-                Log.d("1", String.valueOf(_leftEyeLenghtMax)+" "+String.valueOf(_rightEyeLenghtMax));
-            }
-            if ((rightEye.get(12).y-rightEye.get(4).y)/bounds.height() > _rightEyeLenghtMax) {
-                _rightEyeLenghtMax = (rightEye.get(12).y-rightEye.get(4).y)/bounds.height();
-            }
-            if ((leftEye.get(12).y-leftEye.get(4).y)/bounds.height() > _leftEyeLenghtMax) {
-                _leftEyeLenghtMax = (leftEye.get(12).y-leftEye.get(4).y)/bounds.height();
-            }
-
             if(!eyesOpen(rightEye, leftEye)) {
                 SingleToast.show(_cameraView, "Eyes closed", Toast.LENGTH_SHORT);
                 _drawListener.drawCenterBounds(centerBounds, Color.RED);
@@ -116,7 +103,7 @@ public class FaceAcquisitionListener extends FaceListener {
             }
 
             _drawListener.drawCenterBounds(centerBounds, Color.GREEN);
-            SingleToast.clear();
+            //SingleToast.clear();
             Bitmap cropBitmap = BitmapUtils.getCropBitmap(_frameProxy, bounds);
             Bitmap scaledBitmap = Bitmap.createScaledBitmap(cropBitmap, 140, 140, true);
             //_cameraView.close(_lbp.compute(scaledBitmap));

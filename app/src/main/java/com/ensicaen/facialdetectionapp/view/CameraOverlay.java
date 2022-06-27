@@ -20,6 +20,7 @@ import java.util.List;
 public class CameraOverlay extends View implements FrameListener {
     private ArrayList<Rect> faceBounds;
     private List<PointF> faceContours;
+    private List<PointF> _points;
     private Rect centerBounds;
     private Paint paint;
     private int imageWidth;
@@ -34,6 +35,7 @@ public class CameraOverlay extends View implements FrameListener {
         scaleFactor = 1.0f;
         faceContours = new ArrayList<>();
         faceBounds = new ArrayList<>();
+        _points = new ArrayList<>();
         paint = new Paint();
         paint.setColor(Color.rgb(0, 255, 0));
         paint.setStrokeWidth(6);
@@ -74,6 +76,23 @@ public class CameraOverlay extends View implements FrameListener {
         if(centerBounds != null) {
             canvas.drawRect(centerBounds, paint);
         }
+
+        if (!_points.isEmpty()) {
+            for (PointF point : _points) {
+                canvas.drawPoint(point.x, point.y, paint);
+            }
+        }
+    }
+
+    @Override
+    public void drawPoints(List<PointF> points) {
+        _points.clear();
+        if (!points.isEmpty()) {
+            for(PointF point: points) {
+                _points.add(translatePoint(point));
+            }
+        }
+        invalidate();
     }
 
     @Override

@@ -32,6 +32,7 @@ public class MainActivity extends Activity {
         _textStatus = findViewById(R.id.statusText);
         addRegisterButtonListener();
         addAuthenticateButtonListener();
+        addLivenessButtonListener();
     }
 
     private void addRegisterButtonListener() {
@@ -60,14 +61,14 @@ public class MainActivity extends Activity {
         });
     }
 
-    private void addCameraButtonListener() {
-        findViewById(R.id.cameraButton).setOnClickListener(v -> {
+    private void addLivenessButtonListener() {
+        findViewById(R.id.livenessButton).setOnClickListener(v -> {
             if (hasCameraPermission()) {
-                enableFaceDetection();
+                enableLivenessDetection();
             } else {
                 requestPermission();
                 if (hasCameraPermission()) {
-                    enableFaceDetection();
+                    enableLivenessDetection();
                 }
             }
         });
@@ -98,9 +99,9 @@ public class MainActivity extends Activity {
         startActivityForResult(intent, REGISTER_CODE);
     }
 
-    private void enableFaceDetection() {
+    private void enableLivenessDetection() {
         Intent intent = new Intent(this, CameraView.class);
-        intent.putExtra("type", "detection");
+        intent.putExtra("type", "liveness");
         startActivity(intent);
     }
 

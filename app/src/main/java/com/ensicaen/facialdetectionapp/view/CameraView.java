@@ -25,6 +25,7 @@ import com.ensicaen.facialdetectionapp.controller.FaceAcquisitionListener;
 import com.ensicaen.facialdetectionapp.controller.FaceAuthenticationListener;
 import com.ensicaen.facialdetectionapp.controller.FaceDetectorListener;
 import com.ensicaen.facialdetectionapp.controller.FrameAnalyzer;
+import com.ensicaen.facialdetectionapp.controller.LivenessDetectorListener;
 import com.ensicaen.facialdetectionapp.model.Profile;
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -74,6 +75,8 @@ public class CameraView extends AppCompatActivity {
             frameAnalyzer.addFaceListener(new FaceAcquisitionListener(cameraOverlay, this));
         } else if (_cameraType.equals("authentication")) {
             frameAnalyzer.addFaceListener(new FaceAuthenticationListener(cameraOverlay, this, (Profile)getIntent().getSerializableExtra("user")));
+        } else if (_cameraType.equals("liveness")) {
+            frameAnalyzer.addFaceListener(new LivenessDetectorListener(cameraOverlay, this));
         }
 
         _imageAnalysis.setAnalyzer(Runnable::run, frameAnalyzer);
