@@ -22,10 +22,17 @@ import java.util.List;
 public class LivenessDetectorListener extends FaceListener {
     private FrameListener _drawListener;
     private CameraView _cameraView;
+    private float _lastEulerX;
+    private float _lastEulerY;
+    private float _lastEulerZ;
+
 
     public LivenessDetectorListener(FrameListener drawListener, CameraView cameraView) {
         _drawListener = drawListener;
         _cameraView = cameraView;
+        _lastEulerX = 0.0f;
+        _lastEulerY = 0.0f;
+        _lastEulerZ = 0.0f;
     }
 
     @SuppressLint("UnsafeOptInUsageError")
@@ -53,14 +60,25 @@ public class LivenessDetectorListener extends FaceListener {
                 _drawListener.drawCenterBounds(centerBounds, Color.RED);
                 return;
             }
+            float eulerXDifference = _lastEulerX - eulerX;
+            float eulerYDifference = _lastEulerY - eulerY;
+            float eulerZDifference = _lastEulerZ - eulerZ;
+            Log.i("FaceDetectionApp",  eulerXDifference + "_" + eulerYDifference + "_" + eulerZDifference);
+            _lastEulerX = eulerX;
+            _lastEulerY = eulerY;
+            _lastEulerZ = eulerZ;
 
-            PointF leftFace = face.getContour(FaceContour.UPPER_LIP_TOP).getPoints().get(5);
-            PointF rightFace = face.getContour(FaceContour.LOWER_LIP_BOTTOM).getPoints().get(4);
-            Log.i("FaceDetectionApp", String.valueOf(leftFace.y - rightFace.y));
+            PointF leftFace = face.getContour(FaceContour.LEFT_EYE).getPoints().get(8);
+            PointF rightFace = face.getContour(FaceContour.RIGHT_EYE).getPoints().get(0);
+            Float distance = leftFace.x - rightFace.x;
+            Log.i("FaceDetectionApp", distance + "_" + bounds.width());
+            Log.i("FaceDetectionApp", String.valueOf(distance/ bounds.width()));
             List<PointF> pointsDraw = new ArrayList<>();
             pointsDraw.add(leftFace);
             pointsDraw.add(rightFace);
             _drawListener.drawPoints(pointsDraw);
+            _drawListener.drawFacePoints(face.getContour(FaceContour.FACE).getPoints());
+            _drawListener.drawFaceBounds(bounds);
         }
     }
 

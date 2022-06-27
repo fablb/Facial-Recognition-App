@@ -25,12 +25,16 @@ public class FaceAcquisitionListener extends FaceListener {
     private CameraView _cameraView;
     private SizedArrayList<Point2D> _faceBoundsCenter;
     private LBP _lbp;
+    private float _rightEyeLenghtMax;
+    private float _leftEyeLenghtMax;
 
     public FaceAcquisitionListener(FrameListener drawListener, CameraView cameraView) {
         _drawListener = drawListener;
         _cameraView = cameraView;
         _faceBoundsCenter = new SizedArrayList<>(STABLE_SCREEN_FRAME_COUNT);
         _lbp = new LBP();
+        _rightEyeLenghtMax = 0;
+        _leftEyeLenghtMax = 0;
     }
 
     @SuppressLint("UnsafeOptInUsageError")
@@ -65,15 +69,6 @@ public class FaceAcquisitionListener extends FaceListener {
                 return;
             }
 
-            List<PointF> rightEye = face.getContour(FaceContour.RIGHT_EYE).getPoints();
-            List<PointF> leftEye = face.getContour(FaceContour.LEFT_EYE).getPoints();
-
-            if(!lookAtTheCamera(rightEye, leftEye)) {
-                SingleToast.show(_cameraView, "Look at the screen please", Toast.LENGTH_SHORT);
-                _drawListener.drawCenterBounds(centerBounds, Color.RED);
-                return;
-            }
-
             Point2D boundsCenter = new Point2D(bounds.centerX(), bounds.centerY());
 
             /* Fill before computing mean movement */
@@ -92,11 +87,37 @@ public class FaceAcquisitionListener extends FaceListener {
                 _drawListener.drawCenterBounds(centerBounds, Color.RED);
                 return;
             }
+
+            List<PointF> rightEye = face.getContour(FaceContour.RIGHT_EYE).getPoints();
+            List<PointF> leftEye = face.getContour(FaceContour.LEFT_EYE).getPoints();
+
+            if (((rightEye.get(12).y-rightEye.get(4).y) < _rightEyeLenghtMax*0.40f) ||((leftEye.get(12).y-leftEye.get(4).y) < _leftEyeLenghtMax*0.60f)) {
+                SingleToast.show(_cameraView, "T'AS CLIGNE MEC "+String.valueOf(leftEye.get(12).y-leftEye.get(4).y)+" "+String.valueOf(rightEye.get(12).y-rightEye.get(4).y), Toast.LENGTH_SHORT);
+                Log.d("1", String.valueOf(_leftEyeLenghtMax)+" "+String.valueOf(_rightEyeLenghtMax));
+            }
+            if ((rightEye.get(12).y-rightEye.get(4).y) > _rightEyeLenghtMax) {
+                _rightEyeLenghtMax = rightEye.get(12).y-rightEye.get(4).y;
+            }
+            if ((leftEye.get(12).y-leftEye.get(4).y) > _leftEyeLenghtMax) {
+                _leftEyeLenghtMax = leftEye.get(12).y-leftEye.get(4).y;
+            }
+            /*
+            if(!eyesOpen(rightEye, leftEye)) {
+                SingleToast.show(_cameraView, "Eyes closed", Toast.LENGTH_SHORT);
+                _drawListener.drawCenterBounds(centerBounds, Color.RED);
+                return;
+            }
+            if(!lookAtTheCamera(rightEye, leftEye)) {
+                SingleToast.show(_cameraView, "Look at the screen please", Toast.LENGTH_SHORT);
+                _drawListener.drawCenterBounds(centerBounds, Color.RED);
+                return;
+            }*/
+
             _drawListener.drawCenterBounds(centerBounds, Color.GREEN);
-            SingleToast.clear();
+            //SingleToast.clear();
             Bitmap cropBitmap = BitmapUtils.getCropBitmap(_frameProxy, bounds);
             Bitmap scaledBitmap = Bitmap.createScaledBitmap(cropBitmap, 140, 140, true);
-            _cameraView.close(_lbp.compute(scaledBitmap));
+            //_cameraView.close(_lbp.compute(scaledBitmap));
 
             //Log.i("FaceDetectionApp", p.get_name() + " " + p.get_date() + " " + Arrays.toString(p.get_features()));
             //Profile b = db.searchByName("Fabien")[0];
