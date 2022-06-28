@@ -25,6 +25,8 @@ public class LivenessDetectorListener extends FaceListener {
     private float _lastEulerX;
     private float _lastEulerY;
     private float _lastEulerZ;
+    private float _rightEyeLengthMax;
+    private float _leftEyeLengthMax;
 
 
     public LivenessDetectorListener(FrameListener drawListener, CameraView cameraView) {
@@ -33,6 +35,8 @@ public class LivenessDetectorListener extends FaceListener {
         _lastEulerX = 0.0f;
         _lastEulerY = 0.0f;
         _lastEulerZ = 0.0f;
+        _rightEyeLengthMax = 0.0f;
+        _leftEyeLengthMax = 0.0f;
     }
 
     @SuppressLint("UnsafeOptInUsageError")
@@ -67,6 +71,20 @@ public class LivenessDetectorListener extends FaceListener {
             _lastEulerX = eulerX;
             _lastEulerY = eulerY;
             _lastEulerZ = eulerZ;
+
+            List<PointF> rightEye = face.getContour(FaceContour.RIGHT_EYE).getPoints();
+            List<PointF> leftEye = face.getContour(FaceContour.LEFT_EYE).getPoints();
+
+            if (((rightEye.get(12).y-rightEye.get(4).y)/bounds.height() < _rightEyeLengthMax*0.60f) ||((leftEye.get(12).y-leftEye.get(4).y)/bounds.height() < _leftEyeLengthMax*0.60f)) {
+                SingleToast.show(_cameraView, "Blink detected", Toast.LENGTH_SHORT);
+            }
+            if ((rightEye.get(12).y-rightEye.get(4).y)/bounds.height() > _rightEyeLengthMax) {
+                _rightEyeLengthMax = (rightEye.get(12).y-rightEye.get(4).y)/bounds.height();
+            }
+            if ((leftEye.get(12).y-leftEye.get(4).y)/bounds.height() > _leftEyeLengthMax) {
+                _leftEyeLengthMax = (leftEye.get(12).y-leftEye.get(4).y)/bounds.height();
+            }
+
 
             PointF leftFace = face.getContour(FaceContour.LEFT_EYE).getPoints().get(8);
             PointF rightFace = face.getContour(FaceContour.RIGHT_EYE).getPoints().get(0);
