@@ -102,7 +102,7 @@ public class FaceAcquisitionListener extends FaceListener {
             //SingleToast.clear();
             Bitmap cropBitmap = BitmapUtils.getCropBitmap(_frameProxy, bounds);
             Bitmap scaledBitmap = Bitmap.createScaledBitmap(cropBitmap, 140, 140, true);
-            //_cameraView.close(_lbp.compute(scaledBitmap));
+            _cameraView.close(_lbp.compute(scaledBitmap));
 
             //Log.i("FaceDetectionApp", p.get_name() + " " + p.get_date() + " " + Arrays.toString(p.get_features()));
             //Profile b = db.searchByName("Fabien")[0];
