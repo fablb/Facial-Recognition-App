@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -19,12 +20,17 @@ import com.google.mlkit.vision.face.FaceContour;
 import java.util.ArrayList;
 import java.util.List;
 
+import Catalano.Imaging.FastBitmap;
+import Catalano.Imaging.Tools.ImageStatistics;
+
 public class LivenessDetectorListener extends FaceListener {
     private FrameListener _drawListener;
     private CameraView _cameraView;
     private float _lastEulerX;
     private float _lastEulerY;
     private float _lastEulerZ;
+    private FastBitmap _lastBounds;
+    private int _frameProcessed;
 
 
     public LivenessDetectorListener(FrameListener drawListener, CameraView cameraView) {
@@ -33,6 +39,8 @@ public class LivenessDetectorListener extends FaceListener {
         _lastEulerX = 0.0f;
         _lastEulerY = 0.0f;
         _lastEulerZ = 0.0f;
+        _lastBounds = null;
+        _frameProcessed = 0;
     }
 
     @SuppressLint("UnsafeOptInUsageError")
@@ -63,22 +71,64 @@ public class LivenessDetectorListener extends FaceListener {
             float eulerXDifference = _lastEulerX - eulerX;
             float eulerYDifference = _lastEulerY - eulerY;
             float eulerZDifference = _lastEulerZ - eulerZ;
-            Log.i("FaceDetectionApp",  eulerXDifference + "_" + eulerYDifference + "_" + eulerZDifference);
+            //Log.i("FaceDetectionApp",  eulerX + "_" + eulerY + "_" + eulerZ);
             _lastEulerX = eulerX;
             _lastEulerY = eulerY;
             _lastEulerZ = eulerZ;
 
-            PointF leftFace = face.getContour(FaceContour.LEFT_EYE).getPoints().get(8);
-            PointF rightFace = face.getContour(FaceContour.RIGHT_EYE).getPoints().get(0);
-            Float distance = leftFace.x - rightFace.x;
-            Log.i("FaceDetectionApp", distance + "_" + bounds.width());
-            Log.i("FaceDetectionApp", String.valueOf(distance/ bounds.width()));
+            //Log.i("FaceDetectionApp", String.valueOf(ImageStatistics.Mean(crop)));
+
+            PointF leftEar = face.getContour(FaceContour.FACE).getPoints().get(28);
+            PointF rightEar = face.getContour(FaceContour.FACE).getPoints().get(8);
+            PointF forehead = face.getContour(FaceContour.FACE).getPoints().get(0);
+            PointF chin = face.getContour(FaceContour.FACE).getPoints().get(18);
+            float faceWidth = rightEar.x - leftEar.x;
+            float faceHeight = forehead.y - chin.y;
+            float offsetX = 0.16f * faceWidth;
+            float offsetY = 0.16f * faceHeight;
+            Rect faceBounds = new Rect((int)(rightEar.x + offsetX), (int)(forehead.y + offsetY), (int)(leftEar.x - offsetX), (int)(chin.y - offsetY));
+            Rect _customBounds = new Rect((int)(leftEar.x - offsetX), (int)(forehead.y + offsetY), (int)(rightEar.x + offsetX), (int)(chin.y - offsetY));
+            //Log.i("FaceDetectionApp", bounds.exactCenterX() + "_" + bounds.exactCenterY() + "_" + _customBounds.exactCenterX() + "_" + _customBounds.exactCenterY());
+
+            //Log.i("FaceDetectionApp", distance + "_" + bounds.width());
+            //Log.i("FaceDetectionApp", distance / _image.getWidth() + "_" + (float)bounds.width() / (float)_image.getWidth() + "_" + (float)bounds.height() / (float)_image.getHeight());
+
+            //Rect customBounds = new Rect()
+            //Log.i("FaceDetectionApp", String.valueOf(_customBounds.height()));
+            FastBitmap custom = new FastBitmap(BitmapUtils.getCropBitmap(_frameProxy, _customBounds));
+            //custom.toGrayscale();
+
+            float sumDifferenceRGB = 0.0f;
+            float meanDifferenceRGB = 0.0f;
+            float sumDifferenceGray = 0.0f;
+            float meanDifferenceGray = 0.0f;
+            float i = 0.0f;
+            _frameProcessed += 1;
+            if (_lastBounds != null) {
+                for (int x = 0; x < _lastBounds.getWidth() && x < custom.getWidth(); x++) {
+                    for (int y = 0; y < _lastBounds.getHeight() && y < custom.getHeight(); y++) {
+                        //if (!faceBounds.contains(x, y)) {
+                        sumDifferenceRGB += (Math.abs(_lastBounds.getRed(x, y) - custom.getRed(x, y)) + Math.abs(_lastBounds.getGreen(x, y) - custom.getGreen(x, y)) + Math.abs(_lastBounds.getBlue(x, y) - custom.getBlue(x, y))) / 3.0f;
+                        sumDifferenceGray += Math.abs(_lastBounds.getGray(x, y) - custom.getGray(x, y));
+                        i++;
+                        //}
+                    }
+                }
+                meanDifferenceRGB = sumDifferenceRGB / i;
+                meanDifferenceGray = sumDifferenceGray / i;
+                Log.i("FaceDetectionApp", meanDifferenceRGB + "_" + meanDifferenceGray);
+            }
+            _lastBounds = custom;
+
             List<PointF> pointsDraw = new ArrayList<>();
-            pointsDraw.add(leftFace);
-            pointsDraw.add(rightFace);
-            _drawListener.drawPoints(pointsDraw);
-            _drawListener.drawFacePoints(face.getContour(FaceContour.FACE).getPoints());
-            _drawListener.drawFaceBounds(bounds);
+            pointsDraw.add(leftEar);
+            pointsDraw.add(rightEar);
+            pointsDraw.add(forehead);
+            pointsDraw.add(chin);
+            pointsDraw.add(new PointF(_customBounds.centerX(), _customBounds.centerY()));
+            //_drawListener.drawPoints(pointsDraw);
+            //_drawListener.drawFacePoints(face.getContour(FaceContour.FACE).getPoints());
+            _drawListener.drawFaceBounds(_customBounds);
         }
     }
 

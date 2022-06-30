@@ -29,7 +29,6 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
                 .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
                 .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
                 .setMinFaceSize(0.2f)
-                .enableTracking()
                 .build();
 
         _detector = FaceDetection.getClient(options);
