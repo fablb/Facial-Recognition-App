@@ -66,8 +66,8 @@ public class CameraView extends AppCompatActivity {
                 .build();
 
         _imageAnalysis = new ImageAnalysis.Builder()
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
-                .setImageQueueDepth(50)
+//                .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
+//                .setImageQueueDepth(50)
                 .build();
 
         FrameAnalyzer frameAnalyzer = new FrameAnalyzer();

@@ -51,4 +51,7 @@ dependencies {
     implementation "androidx.camera:camera-extensions:${camerax_version}"
 
     implementation "com.google.mlkit:face-detection:16.1.5"
+
+    implementation 'com.github.wseemann:FFmpegMediaMetadataRetriever-core:1.0.16'
+    implementation 'com.github.wseemann:FFmpegMediaMetadataRetriever-native:1.0.16'
 }

@@ -23,7 +23,7 @@ public class FaceUtils {
             width = h;
             height = w;
         }
-        offsetX = width / 8;
+        offsetX = width / 10;
         offsetY = height / 10;
 
         /* In portrait mode rect bounds are swapped compare to landscape */

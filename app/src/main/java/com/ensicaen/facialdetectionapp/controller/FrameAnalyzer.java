@@ -1,13 +1,12 @@
 package com.ensicaen.facialdetectionapp.controller;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.Image;
+import android.util.Log;
 
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
-import androidx.preference.PreferenceManager;
 
 import com.google.android.gms.tasks.Task;
 import com.google.mlkit.vision.common.InputImage;
@@ -19,23 +18,29 @@ import com.google.mlkit.vision.face.FaceDetectorOptions;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FrameAnalyzer implements ImageAnalysis.Analyzer {
     private FaceDetector _detector;
     private FaceListener _faceListener;
+    private double _processingTime;
+    private int _frameProcessed;
 
     public FrameAnalyzer() {
         FaceDetectorOptions options = new FaceDetectorOptions.Builder()
-                .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
+                //.setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
                 .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
-                .setMinFaceSize(0.2f)
+                .setMinFaceSize(0.3f)
                 .build();
 
         _detector = FaceDetection.getClient(options);
+        _processingTime = 0.0f;
+        _frameProcessed = 0;
     }
 
     @Override
     public void analyze(ImageProxy frameProxy) {
+        long start = System.currentTimeMillis();
         @SuppressLint("UnsafeOptInUsageError") Image frame = frameProxy.getImage();
         if (frame != null) {
             /* Get InputImage for ML KIT */
@@ -46,9 +51,22 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
             @SuppressLint("UnsafeOptInUsageError") Task<List<Face>> result =
                     _detector.process(image).addOnSuccessListener(_faceListener)
                             .addOnCompleteListener(task -> {
+                                _frameProcessed += 1;
+                                long end = System.currentTimeMillis();
+                                _processingTime = _processingTime + (((end - start) - _processingTime) / _frameProcessed);
+                                Log.i("FaceDetectionApp", String.valueOf(_processingTime) + "(" + (end - start) + ")");
                                 frameProxy.close();
                             });
         }
+    }
+
+    /* Used to analyze bitmap coming from image directory */
+    public void analyze(Bitmap input) {
+        AtomicBoolean isFinished = new AtomicBoolean(false);
+        InputImage image = InputImage.fromBitmap(input, 0);
+        _faceListener.setInputImage(image);
+        @SuppressLint("UnsafeOptInUsageError") Task<List<Face>> result =
+                _detector.process(image).addOnSuccessListener(_faceListener);
     }
 
     /* Save frame in internal storage */

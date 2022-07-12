@@ -45,6 +45,9 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
 import androidx.exifinterface.media.ExifInterface;
+
+import com.google.mlkit.vision.common.InputImage;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,6 +60,11 @@ public class BitmapUtils {
     @SuppressLint("UnsafeOptInUsageError")
     public static Bitmap getCropBitmap(ImageProxy image, Rect bounds) {
         return Bitmap.createBitmap(getBitmap(image), bounds.left, bounds.top, bounds.width(), bounds.height());
+    }
+
+    @SuppressLint("UnsafeOptInUsageError")
+    public static Bitmap getCropBitmap(InputImage image, Rect bounds) {
+        return Bitmap.createBitmap(image.getBitmapInternal(), bounds.left, bounds.top, bounds.width(), bounds.height());
     }
 
     /** Converts NV21 format byte buffer to bitmap. */
