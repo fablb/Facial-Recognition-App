@@ -43,6 +43,7 @@ public class LivenessDetectorListener extends FaceListener {
     private Point[] _lastFacePoints;
     private BackgroundSubtraction _bs;
     private double _processingTime;
+    private String _dataName;
 
 
     public LivenessDetectorListener(FrameListener drawListener, CameraView cameraView) {
@@ -151,7 +152,6 @@ public class LivenessDetectorListener extends FaceListener {
             //Rect customBounds = new Rect()
             //Log.i("FaceDetectionApp", String.valueOf(_customBounds.height()));
 
-            if (_frameProcessed % 5 == 0) {
                 Bitmap scaledBitmap = Bitmap.createScaledBitmap(BitmapUtils.getCropBitmap(_image, bounds), 140, 140, true);
 
                 FastBitmap custom = new FastBitmap(scaledBitmap);
@@ -161,7 +161,7 @@ public class LivenessDetectorListener extends FaceListener {
                 } else {
                     Bitmap lastFg = _bs.getForegroundBitmap();
                     _bs.update(custom);
-                    if (_frameProcessed > 10) {
+                    if (_frameProcessed > 2) {
                         ObjectiveFidelity of = new ObjectiveFidelity(new FastBitmap(lastFg), _bs.getForeground());
 
                         int error = of.getTotalError();
@@ -169,13 +169,10 @@ public class LivenessDetectorListener extends FaceListener {
                         double snr = of.getSNR();
                         double dSnr = of.getDerivativeSNR();
                         double psnr = of.getPSNR();
-                        if (mse > 50) {
-                            Log.i("FaceDetectionApp", "Alive! " + mse);
-                        }
+                        Log.i("FaceDetectionApp", _dataName + "_" + mse);
                         //((ImageView)_datasetView.findViewById(R.id.dataset_frame)).setImageBitmap(_bs.getForegroundBitmap());
                     }
                 }
-            }
 
             _frameProcessed += 1;
             _processingTime = _processingTime + (((System.currentTimeMillis() - start) - _processingTime) / _frameProcessed);
@@ -289,6 +286,10 @@ public class LivenessDetectorListener extends FaceListener {
             */
             //_drawListener.drawFacePoints(face.getContour(FaceContour.FACE).getPoints());
         }
+    }
+
+    public void setDataName(String dataName) {
+        _dataName = dataName;
     }
 
     @Override

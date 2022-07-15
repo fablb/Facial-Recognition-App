@@ -60,13 +60,20 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
         }
     }
 
-    /* Used to analyze bitmap coming from image directory */
+    /* Used to analyze synchronously bitmap coming from image directory */
     public void analyze(Bitmap input) {
-        AtomicBoolean isFinished = new AtomicBoolean(false);
         InputImage image = InputImage.fromBitmap(input, 0);
         _faceListener.setInputImage(image);
         @SuppressLint("UnsafeOptInUsageError") Task<List<Face>> result =
                 _detector.process(image).addOnSuccessListener(_faceListener);
+
+        while(!result.isComplete()) {
+            try {
+                Thread.sleep(5);
+            } catch(InterruptedException e) {
+
+            }
+        }
     }
 
     /* Save frame in internal storage */
@@ -82,5 +89,9 @@ public class FrameAnalyzer implements ImageAnalysis.Analyzer {
 
     public void addFaceListener(FaceListener faceListener) {
         _faceListener = faceListener;
+    }
+
+    public FaceListener getFaceListener() {
+        return _faceListener;
     }
 }

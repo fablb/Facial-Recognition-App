@@ -23,6 +23,7 @@ public class DatasetView extends AppCompatActivity {
     private TextView _progressText;
     private Button _startButton;
     private FrameAnalyzer _frameAnalyzer;
+    private String _current;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,11 +38,11 @@ public class DatasetView extends AppCompatActivity {
         _startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for (int subjectId = 36; subjectId < 38; subjectId++) {
+                for (int subjectId = 36; subjectId < 52; subjectId++) {
                     for (int type = 1; type < 4; type++) {
-                        String name = "1_1_"+subjectId+"_"+type;
-                        Log.i("FaceDetectionApp", name);
-                        processDataset("/data/data/com.ensicaen.facialdetectionapp/dataset/internship/images/"+name);
+                        _current = "1_2_"+subjectId+"_"+type;
+                        Log.i("FaceDetectionApp", _current);
+                        processDataset("/data/data/com.ensicaen.facialdetectionapp/dataset/internship/images/"+_current);
                     }
                 }
             }
@@ -49,22 +50,16 @@ public class DatasetView extends AppCompatActivity {
     }
 
     private void processDataset(String dir) {
-        _frameAnalyzer.addFaceListener(new LivenessDetectorListener(this));
+        LivenessDetectorListener liveness = new LivenessDetectorListener(this);
+        liveness.setDataName(_current);
+        _frameAnalyzer.addFaceListener(liveness);
         File directory = new File(dir);
         File[] files = directory.listFiles();
         for (int i = 0; i < files.length; i++) {
-            Bitmap b = BitmapFactory.decodeFile(files[i].getAbsolutePath());
-            _frameAnalyzer.analyze(b);
-            try {
-                Thread.sleep(15);
-            } catch(InterruptedException e) {
-
+            if (i % 5 == 0) {
+                Bitmap b = BitmapFactory.decodeFile(files[i].getAbsolutePath());
+                _frameAnalyzer.analyze(b);
             }
-            //Log.i("FaceDetectionApp", "Progress: " + i + "/" + files.length);
         }
-    }
-
-    public void setImage(Bitmap b) {
-        _frameView.setImageBitmap(b);
     }
 }
