@@ -19,22 +19,21 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
-public class LBPRecognitionPerformance {
+public class MicroMovementsPerformance {
     private File _datasetPath;
     private HashMap<String, Subject> _dataset;
-    private LBPRecognition _recognition;
 
-    public LBPRecognitionPerformance(String datasetPath) {
+    public MicroMovementsPerformance(String datasetPath) {
         _datasetPath = new File(datasetPath);
         _dataset = new HashMap<>();
-        _recognition = new LBPRecognition(8);
     }
-
+/*
     public void run() {
         int length = (int)(Math.pow(_dataset.keySet().size(), 2) * Math.pow(SubjectType.values().length, 2) - _dataset.keySet().size() * SubjectType.values().length);
         double[][] features = new double[length][2];
@@ -92,7 +91,7 @@ public class LBPRecognitionPerformance {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     public void load() {
         File[] files = _datasetPath.listFiles();
@@ -118,25 +117,30 @@ public class LBPRecognitionPerformance {
     }
 
     public void cropAndSave(String savePath) {
-        File[] files = _datasetPath.listFiles();
+        File[] dirs = _datasetPath.listFiles();
         FaceDetector detector = setupFaceDetector();
 
-        for (int i = 0; i < files.length; i++) {
-            Bitmap input = BitmapFactory.decodeFile(files[i].getAbsolutePath());
-            InputImage image = InputImage.fromBitmap(input, 0);
-            String outputName = files[i].getName().substring(0, files[i].getName().lastIndexOf('.'));
-            @SuppressLint("UnsafeOptInUsageError") Task<List<Face>> result =
-                detector.process(image)
-                    .addOnSuccessListener(
-                            faces -> {
-                                for (Face face : faces) {
-                                    Rect faceBounds = face.getBoundingBox();
-                                    Bitmap outputCrop = Bitmap.createBitmap(input, faceBounds.left, faceBounds.top, faceBounds.width(), faceBounds.height());
-                                    saveFrame(savePath + outputName + "_crop", outputCrop);
-                                }
-                            })
-                    .addOnFailureListener(
-                            e -> Log.i("FaceDetectionApp", e.toString()));
+        for (int i = 0; i < dirs.length; i++) {
+            //Files.createDirectories(dirs[i].getAbsolutePath() );
+            Log.i("FaceDetectionApp", dirs[i].getAbsolutePath() + "_crop");
+            File[] files = new File(dirs[i].getAbsolutePath()).listFiles();
+            for (int j = 0; j < files.length; j++) {
+                Bitmap input = BitmapFactory.decodeFile(files[i].getAbsolutePath());
+                InputImage image = InputImage.fromBitmap(input, 0);
+                String outputName = files[i].getName().substring(0, files[i].getName().lastIndexOf('.'));
+                @SuppressLint("UnsafeOptInUsageError") Task<List<Face>> result =
+                        detector.process(image)
+                                .addOnSuccessListener(
+                                        faces -> {
+                                            for (Face face : faces) {
+                                                Rect faceBounds = face.getBoundingBox();
+                                                Bitmap outputCrop = Bitmap.createBitmap(input, faceBounds.left, faceBounds.top, faceBounds.width(), faceBounds.height());
+                                                saveFrame(savePath + outputName + "_crop", outputCrop);
+                                            }
+                                        })
+                                .addOnFailureListener(
+                                        e -> Log.i("FaceDetectionApp", e.toString()));
+            }
         }
     }
 
