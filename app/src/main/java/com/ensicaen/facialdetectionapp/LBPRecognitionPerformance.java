@@ -32,7 +32,7 @@ public class LBPRecognitionPerformance {
     public LBPRecognitionPerformance(String datasetPath) {
         _datasetPath = new File(datasetPath);
         _dataset = new HashMap<>();
-        _recognition = new LBPRecognition(7);
+        _recognition = new LBPRecognition(8);
     }
 
     public void run() {

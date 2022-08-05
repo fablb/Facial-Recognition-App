@@ -40,6 +40,7 @@ public class Subject {
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     public void addImage(SubjectType type, Bitmap image) {
+
         int newGray;
         Bitmap imgMutable = image.copy(Bitmap.Config.ARGB_8888,true);
         for (int x = 0; x < imgMutable.getWidth(); x++) {
