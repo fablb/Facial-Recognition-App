@@ -30,11 +30,11 @@ import java.util.TreeMap;
 
 public class MicroMovementsPerformance {
     private File _datasetPath;
-    private HashMap<String, Subject> _dataset;
+    private Bitmap[][][][][] _dataset;
 
     public MicroMovementsPerformance(String datasetPath) {
         _datasetPath = new File(datasetPath);
-        _dataset = new HashMap<>();
+        _dataset = new Bitmap[20][3][3][6][50]; // Subject/Type(Bonafide/PAD)/Session/Device/Frame
     }
 /*
     public void run() {
@@ -96,27 +96,15 @@ public class MicroMovementsPerformance {
         }
     }*/
 
-    public void load() {
-        File[] files = _datasetPath.listFiles();
-
-        for (int i = 0; i < files.length; i++) {
-            Bitmap subjectBitmap = BitmapFactory.decodeFile(files[i].getAbsolutePath());
-            String[] nameSplit = files[i].getName().split("\\.", 0);
-            String subjectName = nameSplit[0];
-            String subjectType;
-            if (nameSplit.length > 2) {
-                subjectType = nameSplit[1].split("_", 0)[0];
-            } else {
-                subjectName = nameSplit[0].split("_", 0)[0];
-                subjectType = "";
-            }
-            Subject subject = _dataset.get(subjectName);
-            if (subject == null) {
-                subject = new Subject(subjectName);
-            }
-            subject.addImage(Subject.parseType(subjectType), subjectBitmap);
-            _dataset.put(subjectName, subject);
+    public ArrayList<Bitmap> load(int deviceId, int sessionId, int subjectId, int typeId) {
+        ArrayList<Bitmap> _frames = new ArrayList<>();
+        File[] files = new File(_datasetPath.getAbsolutePath() + deviceId + "_" + sessionId + "_" + subjectId + "_" + typeId).listFiles();
+        for (int j = 0; j < files.length; j++) {
+            Bitmap input = BitmapFactory.decodeFile(files[j].getAbsolutePath());
+            //Bitmap scaledInput = Bitmap.createScaledBitmap(input, (int)(input.getWidth() * 0.5), (int)(input.getHeight() * 0.5), false);
+            _frames.add(input);
         }
+        return _frames;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -126,7 +114,7 @@ public class MicroMovementsPerformance {
         InputImage image;
         File[] files;
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 130; i < 180; i++) {
             try {
                 Files.createDirectories(Paths.get(savePath + dirs[i].getName()));
             } catch (IOException e) {
@@ -141,7 +129,7 @@ public class MicroMovementsPerformance {
                 String dirName = dirs[i].getName();
                 String fileName = files[j].getName();
                 try {
-                    Thread.sleep(50);
+                    Thread.sleep(1);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

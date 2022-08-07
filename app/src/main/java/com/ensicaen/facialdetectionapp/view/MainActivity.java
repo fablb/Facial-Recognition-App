@@ -27,9 +27,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         init();
-        MicroMovementsPerformance lbpPerf = new MicroMovementsPerformance("/data/data/com.ensicaen.facialdetectionapp/dataset/internship/images/");
-        //lbpPerf.load();
-        lbpPerf.cropAndSave("/data/data/com.ensicaen.facialdetectionapp/dataset/internship/images_crop/");
+        MicroMovementsPerformance mmPerf = new MicroMovementsPerformance("/data/data/com.ensicaen.facialdetectionapp/dataset/internship/images/");
+        mmPerf.run();
     }
 
     private EditText _name;
