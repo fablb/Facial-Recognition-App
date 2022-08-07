@@ -8,6 +8,8 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
+
 import com.google.android.gms.tasks.Task;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
@@ -20,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -116,26 +119,43 @@ public class MicroMovementsPerformance {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void cropAndSave(String savePath) {
         File[] dirs = _datasetPath.listFiles();
         FaceDetector detector = setupFaceDetector();
+        InputImage image;
+        File[] files;
 
-        for (int i = 0; i < dirs.length; i++) {
-            //Files.createDirectories(dirs[i].getAbsolutePath() );
-            Log.i("FaceDetectionApp", dirs[i].getAbsolutePath() + "_crop");
-            File[] files = new File(dirs[i].getAbsolutePath()).listFiles();
+        for (int i = 0; i < 1; i++) {
+            try {
+                Files.createDirectories(Paths.get(savePath + dirs[i].getName()));
+            } catch (IOException e) {
+
+            }
+            files = new File(dirs[i].getAbsolutePath()).listFiles();
             for (int j = 0; j < files.length; j++) {
-                Bitmap input = BitmapFactory.decodeFile(files[i].getAbsolutePath());
-                InputImage image = InputImage.fromBitmap(input, 0);
-                String outputName = files[i].getName().substring(0, files[i].getName().lastIndexOf('.'));
+                Log.i("FaceDetectionApp", files[j].getAbsolutePath());
+                Bitmap input = BitmapFactory.decodeFile(files[j].getAbsolutePath());
+                Bitmap scaledInput = Bitmap.createScaledBitmap(input, (int)(input.getWidth() * 0.5), (int)(input.getHeight() * 0.5), false);
+                image = InputImage.fromBitmap(scaledInput, 0);
+                String dirName = dirs[i].getName();
+                String fileName = files[j].getName();
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 @SuppressLint("UnsafeOptInUsageError") Task<List<Face>> result =
                         detector.process(image)
                                 .addOnSuccessListener(
                                         faces -> {
                                             for (Face face : faces) {
                                                 Rect faceBounds = face.getBoundingBox();
-                                                Bitmap outputCrop = Bitmap.createBitmap(input, faceBounds.left, faceBounds.top, faceBounds.width(), faceBounds.height());
-                                                saveFrame(savePath + outputName + "_crop", outputCrop);
+                                                int widthOffset = (int)(faceBounds.width() * 0.3);
+                                                int heightOffset = (int)(faceBounds.height() * 0.3);
+                                                Bitmap outputCrop = Bitmap.createBitmap(scaledInput, faceBounds.left - widthOffset / 2, faceBounds.top - heightOffset / 2, faceBounds.width() + widthOffset, faceBounds.height() + heightOffset);
+                                                //Log.i("FaceDetectionApp", savePath + dirName + "/" + fileName);
+                                                saveFrame(savePath + dirName + "/" + fileName, outputCrop);
                                             }
                                         })
                                 .addOnFailureListener(

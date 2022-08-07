@@ -28,8 +28,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         init();
         MicroMovementsPerformance lbpPerf = new MicroMovementsPerformance("/data/data/com.ensicaen.facialdetectionapp/dataset/internship/images/");
-        lbpPerf.load();
-        lbpPerf.run();
+        //lbpPerf.load();
+        lbpPerf.cropAndSave("/data/data/com.ensicaen.facialdetectionapp/dataset/internship/images_crop/");
     }
 
     private EditText _name;
