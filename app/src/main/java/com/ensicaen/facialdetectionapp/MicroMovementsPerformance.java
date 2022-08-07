@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 import Catalano.Imaging.FastBitmap;
+import Catalano.Imaging.Tools.ObjectiveFidelity;
 
 public class MicroMovementsPerformance {
     private File _datasetPath;
@@ -39,15 +40,36 @@ public class MicroMovementsPerformance {
     }
 
     public void run() {
-        ArrayList<Bitmap> frames = load(1,1,36,1);
-        Log.i("FaceDetectionApp", String.valueOf(frames.size()));
-        FastBitmap fb = new FastBitmap(frames.get(0).copy(Bitmap.Config.ARGB_8888,true));
-        Log.i("FaceDetectionApp", String.valueOf(frames.size()));
-        BackgroundSubtraction bs = new BackgroundSubtraction(fb, 35);
-        for (int i = 1; i < frames.size(); i++) {
-            fb = new FastBitmap(frames.get(i).copy(Bitmap.Config.ARGB_8888,true));
-            bs.update(new FastBitmap(fb));
-            saveFrame("/data/data/com.ensicaen.facialdetectionapp/output/bs/1_1_36_1_"+i, bs.getForegroundBitmap());
+        ArrayList<Bitmap> frames;
+        BackgroundSubtraction bs;
+        FastBitmap fb;
+        FastBitmap last;
+        int threshold = 30;
+
+        for (int deviceId = 2; deviceId < 3; deviceId++) {
+            for (int sessionId = 1; sessionId < 4; sessionId++) {
+                for (int subjectId = 36; subjectId < 56; subjectId++) {
+                    for (int typeId = 1; typeId < 4; typeId++) {
+                        if (typeId == 1) {
+                            continue;
+                        }
+                        frames = load(deviceId,sessionId,subjectId,typeId);
+                        fb = new FastBitmap(frames.get(0).copy(Bitmap.Config.ARGB_8888,true));
+                        bs = new BackgroundSubtraction(fb, threshold);
+                        for (int i = 1; i < frames.size(); i++) {
+                            fb = new FastBitmap(frames.get(i).copy(Bitmap.Config.ARGB_8888,true));
+                            last = new FastBitmap(bs.getForeground());
+                            bs.update(fb);
+                            if (i > 2) {
+                                ObjectiveFidelity of = new ObjectiveFidelity(last, bs.getForeground());
+                                Log.i("FaceDetectionApp", String.valueOf(of.getMSE()));
+                            }
+                            //saveFrame("/data/data/com.ensicaen.facialdetectionapp/output/bs/"+deviceId + "_" + sessionId + "_" + subjectId + "_" + typeId + "_" +i, bs.getForegroundBitmap());
+                        }
+                        Log.i("FaceDetectionApp", "-");
+                    }
+                }
+            }
         }
     }    /*
         int length = (int)(Math.pow(_dataset.keySet().size(), 2) * Math.pow(SubjectType.values().length, 2) - _dataset.keySet().size() * SubjectType.values().length);
@@ -110,7 +132,6 @@ public class MicroMovementsPerformance {
 
     public ArrayList<Bitmap> load(int deviceId, int sessionId, int subjectId, int typeId) {
         ArrayList<Bitmap> frames = new ArrayList<>();
-        Log.i("FaceDetectionApp", _datasetPath.getAbsolutePath());
         File[] files = new File(_datasetPath.getAbsolutePath() + "/" + deviceId + "_" + sessionId + "_" + subjectId + "_" + typeId).listFiles();
         for (int j = 0; j < files.length; j++) {
             Bitmap input = BitmapFactory.decodeFile(files[j].getAbsolutePath());
