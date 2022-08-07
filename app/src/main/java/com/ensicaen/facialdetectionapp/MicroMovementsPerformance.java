@@ -10,6 +10,7 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
+import com.ensicaen.facialdetectionapp.utils.BackgroundSubtraction;
 import com.google.android.gms.tasks.Task;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
@@ -28,16 +29,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
+import Catalano.Imaging.FastBitmap;
+
 public class MicroMovementsPerformance {
     private File _datasetPath;
-    private Bitmap[][][][][] _dataset;
 
     public MicroMovementsPerformance(String datasetPath) {
         _datasetPath = new File(datasetPath);
-        _dataset = new Bitmap[20][3][3][6][50]; // Subject/Type(Bonafide/PAD)/Session/Device/Frame
     }
-/*
+
     public void run() {
+        ArrayList<Bitmap> frames = load(1,1,36,1);
+        Log.i("FaceDetectionApp", String.valueOf(frames.size()));
+        FastBitmap fb = new FastBitmap(frames.get(0).copy(Bitmap.Config.ARGB_8888,true));
+        Log.i("FaceDetectionApp", String.valueOf(frames.size()));
+        BackgroundSubtraction bs = new BackgroundSubtraction(fb, 35);
+        for (int i = 1; i < frames.size(); i++) {
+            fb = new FastBitmap(frames.get(i).copy(Bitmap.Config.ARGB_8888,true));
+            bs.update(new FastBitmap(fb));
+            saveFrame("/data/data/com.ensicaen.facialdetectionapp/output/bs/1_1_36_1_"+i, bs.getForegroundBitmap());
+        }
+    }    /*
         int length = (int)(Math.pow(_dataset.keySet().size(), 2) * Math.pow(SubjectType.values().length, 2) - _dataset.keySet().size() * SubjectType.values().length);
         double[][] features = new double[length][2];
         int total = 0;
@@ -97,14 +109,15 @@ public class MicroMovementsPerformance {
     }*/
 
     public ArrayList<Bitmap> load(int deviceId, int sessionId, int subjectId, int typeId) {
-        ArrayList<Bitmap> _frames = new ArrayList<>();
-        File[] files = new File(_datasetPath.getAbsolutePath() + deviceId + "_" + sessionId + "_" + subjectId + "_" + typeId).listFiles();
+        ArrayList<Bitmap> frames = new ArrayList<>();
+        Log.i("FaceDetectionApp", _datasetPath.getAbsolutePath());
+        File[] files = new File(_datasetPath.getAbsolutePath() + "/" + deviceId + "_" + sessionId + "_" + subjectId + "_" + typeId).listFiles();
         for (int j = 0; j < files.length; j++) {
             Bitmap input = BitmapFactory.decodeFile(files[j].getAbsolutePath());
             //Bitmap scaledInput = Bitmap.createScaledBitmap(input, (int)(input.getWidth() * 0.5), (int)(input.getHeight() * 0.5), false);
-            _frames.add(input);
+            frames.add(input);
         }
-        return _frames;
+        return frames;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
