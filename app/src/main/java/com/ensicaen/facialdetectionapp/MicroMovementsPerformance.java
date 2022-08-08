@@ -44,9 +44,9 @@ public class MicroMovementsPerformance {
         BackgroundSubtraction bs;
         FastBitmap fb;
         FastBitmap last;
-        int threshold = 30;
+        int threshold = 45;
 
-        for (int deviceId = 2; deviceId < 3; deviceId++) {
+        for (int deviceId = 1; deviceId < 3; deviceId++) {
             for (int sessionId = 1; sessionId < 4; sessionId++) {
                 for (int subjectId = 36; subjectId < 56; subjectId++) {
                     for (int typeId = 1; typeId < 4; typeId++) {
