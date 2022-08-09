@@ -65,10 +65,7 @@ public class CameraView extends AppCompatActivity {
                 .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
                 .build();
 
-        _imageAnalysis = new ImageAnalysis.Builder()
-//                .setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
-//                .setImageQueueDepth(50)
-                .build();
+        _imageAnalysis = new ImageAnalysis.Builder().build();
 
         FrameAnalyzer frameAnalyzer = new FrameAnalyzer();
 

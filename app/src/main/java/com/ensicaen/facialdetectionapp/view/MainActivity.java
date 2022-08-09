@@ -5,21 +5,15 @@ import androidx.core.content.ContextCompat;
 
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ensicaen.facialdetectionapp.R;
-import com.ensicaen.facialdetectionapp.utils.VideoToBitmap;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 public class MainActivity extends Activity {
     private static final String[] CAMERA_PERMISSION = new String[]{Manifest.permission.CAMERA};
@@ -29,8 +23,6 @@ public class MainActivity extends Activity {
     private ImageView _imageStatus;
     private TextView _textStatus;
 
-
-    @SuppressLint("WrongThread")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

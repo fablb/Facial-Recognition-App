@@ -1,5 +1,9 @@
 package com.ensicaen.facialdetectionapp.utils;
 
+/*
+    Added getCropBitmap methods and saveBitmap
+ */
+
 /* https://github.com/googlesamples/mlkit/blob/master/android/vision-quickstart/app/src/main/java/com/google/mlkit/vision/demo/BitmapUtils.java */
 
 /*
@@ -49,6 +53,7 @@ import androidx.exifinterface.media.ExifInterface;
 import com.google.mlkit.vision.common.InputImage;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -65,6 +70,17 @@ public class BitmapUtils {
     @SuppressLint("UnsafeOptInUsageError")
     public static Bitmap getCropBitmap(InputImage image, Rect bounds) {
         return Bitmap.createBitmap(image.getBitmapInternal(), bounds.left, bounds.top, bounds.width(), bounds.height());
+    }
+
+    /* Save Bitmap in internal storage */
+    public static void saveFrame(Bitmap input, String outputPath) {
+        try {
+            @SuppressLint("UnsafeOptInUsageError") FileOutputStream out = new FileOutputStream(outputPath);
+            input.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /** Converts NV21 format byte buffer to bitmap. */
