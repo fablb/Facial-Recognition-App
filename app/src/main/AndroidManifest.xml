@@ -22,7 +22,7 @@
             android:exported="false"
             android:label="@string/title_activity_settings" />
         <activity
-            android:name=".view.MainActivity"
+            android:name=".view.DatasetView"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,6 +38,9 @@
             android:exported="true" />
         <activity
             android:name=".view.RegisterView"
+            android:exported="true" />
+        <activity
+            android:name=".view.MainActivity"
             android:exported="true" />
     </application>
 

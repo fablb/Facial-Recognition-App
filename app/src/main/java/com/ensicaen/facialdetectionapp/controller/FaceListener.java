@@ -15,8 +15,8 @@ import com.google.mlkit.vision.common.InputImage;
 import java.util.List;
 
 public abstract class FaceListener implements OnSuccessListener, OnFailureListener {
-    protected InputImage _image;
-    protected ImageProxy _frameProxy;
+    protected InputImage _image = null;
+    protected ImageProxy _frameProxy = null;
     protected static final int STABLE_SCREEN_FRAME_COUNT = 9;
     protected static final int STABLE_SCREEN_THRESHOLD = 10;
     private final float CENTER_THRESHOLD = 0.70f;
