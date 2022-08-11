@@ -12,40 +12,30 @@
 
         <SwitchPreference
             android:defaultValue="false"
+            android:key="switch_draw_face_contours"
+            android:title="Draw face contours"
+            android:summary=""/>
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="switch_draw_eyes_contours"
+            android:title="Draw eyes contours"
+            android:summary=""/>
+
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="switch_save_face"
             android:title="Save cropped detected face"
             android:summary="Save cropped face in internal storage (debugging purpose)"/>
+
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/messages_header">
 
-        <EditTextPreference
-            app:key="signature"
-            app:title="@string/signature_title"
-            app:useSimpleSummaryProvider="true" />
-
-        <ListPreference
-            app:defaultValue="reply"
-            app:entries="@array/reply_entries"
-            app:entryValues="@array/reply_values"
-            app:key="reply"
-            app:title="@string/reply_title"
-            app:useSimpleSummaryProvider="true" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="blinking_detection"
+            android:title="Blinking detection"
+            android:summary="A toast appears when blinking is detected"/>
 
     </PreferenceCategory>
-
-    <PreferenceCategory app:title="@string/sync_header">
-
-        <SwitchPreferenceCompat
-            app:key="sync"
-            app:title="@string/sync_title" />
-
-        <SwitchPreferenceCompat
-            app:dependency="sync"
-            app:key="attachment"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="@string/attachment_title" />
-
-    </PreferenceCategory>
-
 </PreferenceScreen>

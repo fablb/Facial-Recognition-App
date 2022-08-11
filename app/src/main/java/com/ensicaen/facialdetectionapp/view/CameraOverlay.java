@@ -20,6 +20,8 @@ import java.util.List;
 public class CameraOverlay extends View implements FrameListener {
     private ArrayList<Rect> faceBounds;
     private List<PointF> faceContours;
+    private List<PointF> rightEyeContours;
+    private List<PointF> leftEyeContours;
     private List<PointF> _points;
     private Rect centerBounds;
     private Paint paint;
@@ -34,6 +36,8 @@ public class CameraOverlay extends View implements FrameListener {
         super(context, attrs);
         scaleFactor = 1.0f;
         faceContours = new ArrayList<>();
+        rightEyeContours = new ArrayList<>();
+        leftEyeContours = new ArrayList<>();
         faceBounds = new ArrayList<>();
         _points = new ArrayList<>();
         paint = new Paint();
@@ -73,6 +77,18 @@ public class CameraOverlay extends View implements FrameListener {
             }
         }
 
+        if(!rightEyeContours.isEmpty()) {
+            for (PointF point : rightEyeContours) {
+                canvas.drawCircle(point.x, point.y, 1, paint);
+            }
+        }
+
+        if(!leftEyeContours.isEmpty()) {
+            for (PointF point : leftEyeContours) {
+                canvas.drawCircle(point.x, point.y, 1, paint);
+            }
+        }
+
         if(centerBounds != null) {
             canvas.drawRect(centerBounds, paint);
         }
@@ -97,13 +113,14 @@ public class CameraOverlay extends View implements FrameListener {
 
     @Override
     public void drawFaceBounds(Rect face) {
+        faceBounds.clear();
         if (PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("switch_draw_face_bounds", false)) {
-            faceBounds.clear();
             if (face != null) {
                 faceBounds.add(translateRect(face));
             }
-            invalidate();
+
         }
+        invalidate();
     }
 
     @Override
@@ -115,15 +132,33 @@ public class CameraOverlay extends View implements FrameListener {
 
     @Override
     public void drawFacePoints(List<PointF> Line) {
-        if (PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("switch_draw_face_bounds", false)) {
-            faceContours.clear();
+        faceContours.clear();
+        if (PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("switch_draw_face_contours", false)) {
             if (Line != null) {
                 for(PointF point: Line) {
                     faceContours.add(translatePoint(point));
                 }
             }
-            invalidate();
         }
+        invalidate();
+    }
+
+    public void drawEyesPoints(List<PointF> rightEye,List<PointF> leftEye) {
+        rightEyeContours.clear();
+        leftEyeContours.clear();
+        if (PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("switch_draw_eyes_contours", false)) {
+            if (rightEye != null) {
+                for(PointF point: rightEye) {
+                    rightEyeContours.add(translatePoint(point));
+                }
+            }
+            if (leftEye != null) {
+                for(PointF point: leftEye) {
+                    leftEyeContours.add(translatePoint(point));
+                }
+            }
+        }
+        invalidate();
     }
 
     public Rect translateRect(Rect rect) {

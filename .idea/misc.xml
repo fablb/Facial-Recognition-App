@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Facial-Detection-App/app/src/main/res/layout/settings_activity.xml" value="0.1037037037037037" />
+        <entry key="..\:/Facial-Detection-App/app/src/main/res/menu/actionbar.xml" value="0.1037037037037037" />
+        <entry key="..\:/Facial-Detection-App/app/src/main/res/xml/root_preferences.xml" value="0.1037037037037037" />
         <entry key="..\:/Users/faleb/AndroidStudioProjects/Facial-Detection-App/app/src/main/res/drawable/ic_baseline_cancel_24.xml" value="0.123" />
         <entry key="..\:/Users/faleb/AndroidStudioProjects/Facial-Detection-App/app/src/main/res/drawable/ic_baseline_check_circle_outline_24.xml" value="0.123" />
         <entry key="..\:/Users/faleb/AndroidStudioProjects/Facial-Detection-App/app/src/main/res/layout/activity_main.xml" value="0.11302083333333333" />

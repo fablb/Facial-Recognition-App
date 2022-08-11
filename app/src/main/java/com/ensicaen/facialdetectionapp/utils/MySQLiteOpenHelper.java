@@ -13,7 +13,7 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper {
             + "id INTEGER PRIMARY KEY,"
             + "name TEXT NOT NULL,"
             + "features TEXT NOT NULL,"
-            + "registred_date TEXT NOT NULL);";
+            + "registered_date TEXT NOT NULL);";
     public MySQLiteOpenHelper(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }

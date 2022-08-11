@@ -21,7 +21,7 @@ public class LocalDB {
 
     public void add(Profile profile) {
         _bd = _bdAccess.getWritableDatabase();
-        String req = "INSERT INTO profil(name, features, registred_date) VALUES ";
+        String req = "INSERT INTO profil(name, features, registered_date) VALUES ";
         req += "(\'"+ profile.get_name() +"\',\'"+ profile.convertFeaturesToString() +"\',\'"+ profile.get_date() +"\');";
         _bd.execSQL(req);
     }
