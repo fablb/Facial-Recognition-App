@@ -25,6 +25,7 @@ import Catalano.Imaging.Tools.ObjectiveFidelity;
 public class LivenessDetectorListener extends FaceListener {
     private FrameListener _drawListener;
     private CameraView _cameraView;
+    private int _closed_eye_frame;
     private float _rightEyeLengthMax;
     private float _leftEyeLengthMax;
     private int _frameProcessed;
@@ -39,6 +40,7 @@ public class LivenessDetectorListener extends FaceListener {
         _leftEyeLengthMax = 0.0f;
         _frameProcessed = 0;
         _maxMSE = 0.0;
+        _closed_eye_frame = 0;
     }
 
     @SuppressLint("UnsafeOptInUsageError")
@@ -109,8 +111,19 @@ public class LivenessDetectorListener extends FaceListener {
             List<PointF> rightEye = face.getContour(FaceContour.RIGHT_EYE).getPoints();
             List<PointF> leftEye = face.getContour(FaceContour.LEFT_EYE).getPoints();
 
-            if (((rightEye.get(12).y-rightEye.get(4).y)/bounds.height() < _rightEyeLengthMax*0.60f) ||((leftEye.get(12).y-leftEye.get(4).y)/bounds.height() < _leftEyeLengthMax*0.60f)) {
+            if (((rightEye.get(12).y-rightEye.get(4).y)/bounds.height() < _rightEyeLengthMax*0.65f) ||((leftEye.get(12).y-leftEye.get(4).y)/bounds.height() < _leftEyeLengthMax*0.65f)) {
                 SingleToast.show(_cameraView, "Blink detected", Toast.LENGTH_SHORT);
+                _closed_eye_frame++;
+                return;
+            } else {
+                if (_closed_eye_frame != 0) {
+                    if (_closed_eye_frame <= 5) {
+                        Log.d("1", "Blinking detected");
+                    }else{
+                        Log.d("1", "Closing detected");
+                    }
+                    _closed_eye_frame = 0;
+                }
             }
             if ((rightEye.get(12).y-rightEye.get(4).y)/bounds.height() > _rightEyeLengthMax) {
                 _rightEyeLengthMax = (rightEye.get(12).y-rightEye.get(4).y)/bounds.height();
@@ -118,9 +131,14 @@ public class LivenessDetectorListener extends FaceListener {
             if ((leftEye.get(12).y-leftEye.get(4).y)/bounds.height() > _leftEyeLengthMax) {
                 _leftEyeLengthMax = (leftEye.get(12).y-leftEye.get(4).y)/bounds.height();
             }
+            if (!lookAtTheCamera(rightEye, leftEye)) {
+                Log.d("1", "Look at the camera");
+                return;
+            }
 
             _drawListener.drawFacePoints(face.getContour(FaceContour.FACE).getPoints());
             _drawListener.drawFaceBounds(bounds);
+            _drawListener.drawEyesPoints(rightEye, leftEye);
         }
     }
 
