@@ -72,6 +72,10 @@ public class BitmapUtils {
         return Bitmap.createBitmap(image.getBitmapInternal(), bounds.left, bounds.top, bounds.width(), bounds.height());
     }
 
+    public static Bitmap getCropBitmap(Bitmap image, Rect bounds) {
+        return Bitmap.createBitmap(image, bounds.left, bounds.top, bounds.width(), bounds.height());
+    }
+
     /* Save Bitmap in internal storage */
     public static void saveFrame(Bitmap input, String outputPath) {
         try {

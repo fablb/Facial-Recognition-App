@@ -9,7 +9,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.ensicaen.facialdetectionapp.utils.BitmapUtils;
-import com.ensicaen.facialdetectionapp.utils.FaceUtils;
 import com.ensicaen.facialdetectionapp.utils.LBP;
 import com.ensicaen.facialdetectionapp.utils.Point2D;
 import com.ensicaen.facialdetectionapp.utils.SingleToast;
@@ -23,28 +22,28 @@ import java.util.List;
 public class FaceAcquisitionListener extends FaceListener {
     private FrameListener _drawListener;
     private CameraView _cameraView;
-    private SizedArrayList<Point2D> _faceBoundsCenter;
+    private AttentionDetector _attentionDetector;
     private LBP _lbp;
 
     public FaceAcquisitionListener(FrameListener drawListener, CameraView cameraView) {
         _drawListener = drawListener;
         _cameraView = cameraView;
-        _faceBoundsCenter = new SizedArrayList<>(STABLE_SCREEN_FRAME_COUNT);
         _lbp = new LBP();
+        _attentionDetector = new AttentionDetector();
     }
 
     @SuppressLint("UnsafeOptInUsageError")
     @Override
     public void onSuccess(Object o) {
         List<Face> faces = (List<Face>) o;
-
-        Rect centerBounds = FaceUtils.getCenter(_image.getWidth(), _image.getHeight(), true);
         int rotationDegrees = _frameProxy.getImageInfo().getRotationDegrees();
         _drawListener.setImageSourceInfo(_image.getWidth(), _image.getHeight(), rotationDegrees, true);
+        _attentionDetector.setImageSize(_image.getWidth(), _image.getHeight(), true);
+        Rect _insideRect = _attentionDetector.getInsideRect();
 
         if (faces.isEmpty()) {
             SingleToast.show(_cameraView, "No face on screen", Toast.LENGTH_SHORT);
-            _drawListener.drawCenterBounds(centerBounds, Color.RED);
+            _drawListener.drawCenterBounds(_insideRect, Color.RED);
             return;
         }
         for (Face face : faces) {
@@ -53,61 +52,38 @@ public class FaceAcquisitionListener extends FaceListener {
             float eulerY = face.getHeadEulerAngleY();
             float eulerZ = face.getHeadEulerAngleZ();
 
-            if (!centerBounds.contains(bounds)) {
-                SingleToast.show(_cameraView, "Face is not centered", Toast.LENGTH_SHORT);
-                _drawListener.drawCenterBounds(centerBounds, Color.RED);
+            if (!_attentionDetector.isInside(bounds)) {
+                SingleToast.show(_cameraView, "Whole face is not inside screen", Toast.LENGTH_SHORT);
+                _drawListener.drawCenterBounds(_insideRect, Color.RED);
                 return;
             }
 
-            if (!FaceUtils.isStraight(eulerX, eulerY, eulerZ)) {
+            if (_attentionDetector.isStraight(eulerX, eulerY, eulerZ)) {
                 SingleToast.show(_cameraView, "Face is not straight", Toast.LENGTH_SHORT);
-                _drawListener.drawCenterBounds(centerBounds, Color.RED);
+                _drawListener.drawCenterBounds(_insideRect, Color.RED);
                 return;
             }
-
-            Point2D boundsCenter = new Point2D(bounds.centerX(), bounds.centerY());
-
-            /* Fill before computing mean movement */
-            if (_faceBoundsCenter.size() < _faceBoundsCenter.capacity()) {
-                _faceBoundsCenter.add(boundsCenter);
-                _drawListener.drawCenterBounds(centerBounds, Color.RED);
-                return;
-            }
-
-            int meanDistance = boundsCenter.meanDistance(_faceBoundsCenter);
-            _faceBoundsCenter.add(boundsCenter);
 
             /* Avoid blur image */
-            if (meanDistance > STABLE_SCREEN_THRESHOLD) {
+            if (_attentionDetector.isMoving(bounds.centerX(), bounds.centerY())) {
                 SingleToast.show(_cameraView, "Face or mobile phone is moving", Toast.LENGTH_SHORT);
-                _drawListener.drawCenterBounds(centerBounds, Color.RED);
+                _drawListener.drawCenterBounds(_insideRect, Color.RED);
                 return;
             }
 
-            List<PointF> rightEye = face.getContour(FaceContour.RIGHT_EYE).getPoints();
             List<PointF> leftEye = face.getContour(FaceContour.LEFT_EYE).getPoints();
+            List<PointF> rightEye = face.getContour(FaceContour.RIGHT_EYE).getPoints();
 
-            if(!eyesOpen(rightEye, leftEye)) {
-                SingleToast.show(_cameraView, "Eyes closed", Toast.LENGTH_SHORT);
-                _drawListener.drawCenterBounds(centerBounds, Color.RED);
-                return;
-            }
-            if(!lookAtTheCamera(rightEye, leftEye)) {
+            if(!_attentionDetector.isLooking(leftEye, rightEye, BitmapUtils.getBitmap(_frameProxy))) {
                 SingleToast.show(_cameraView, "Look at the screen please", Toast.LENGTH_SHORT);
-                _drawListener.drawCenterBounds(centerBounds, Color.RED);
+                _drawListener.drawCenterBounds(_insideRect, Color.RED);
                 return;
             }
 
-            _drawListener.drawCenterBounds(centerBounds, Color.GREEN);
-            //SingleToast.clear();
+            _drawListener.drawCenterBounds(_insideRect, Color.GREEN);
             Bitmap cropBitmap = BitmapUtils.getCropBitmap(_frameProxy, bounds);
-            Bitmap scaledBitmap = Bitmap.createScaledBitmap(cropBitmap, 140, 140, true);
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(cropBitmap, 320, 320, true);
             _cameraView.close(_lbp.compute(scaledBitmap));
-
-            //Log.i("FaceDetectionApp", p.get_name() + " " + p.get_date() + " " + Arrays.toString(p.get_features()));
-            //Profile b = db.searchByName("Fabien")[0];
-            //Log.i("FaceDetectionApp", "Search: " + b.get_name() + " " + b.get_date() + " " + Arrays.toString(b.get_features()));
-            //((ImageView)_cameraView.findViewById(R.id.face_acquisition)).setImageBitmap(cropBitmap);
         }
     }
 

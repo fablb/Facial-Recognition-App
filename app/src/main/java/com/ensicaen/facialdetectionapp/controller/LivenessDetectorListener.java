@@ -10,9 +10,7 @@ import android.widget.Toast;
 
 import com.ensicaen.facialdetectionapp.utils.BackgroundSubtraction;
 import com.ensicaen.facialdetectionapp.utils.BitmapUtils;
-import com.ensicaen.facialdetectionapp.utils.FaceUtils;
 import com.ensicaen.facialdetectionapp.utils.SingleToast;
-import com.ensicaen.facialdetectionapp.utils.SizedArrayList;
 import com.ensicaen.facialdetectionapp.view.CameraView;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceContour;
@@ -32,6 +30,7 @@ public class LivenessDetectorListener extends FaceListener {
     private BackgroundSubtraction _bs;
     private double _maxMSE;
     private int _timeBeforeDecision = 5; // number of frame
+    private AttentionDetector _attentionDetector;
 
     public LivenessDetectorListener(FrameListener drawListener, CameraView cameraView) {
         _drawListener = drawListener;
@@ -41,44 +40,36 @@ public class LivenessDetectorListener extends FaceListener {
         _frameProcessed = 0;
         _maxMSE = 0.0;
         _closed_eye_frame = 0;
+        _attentionDetector = new AttentionDetector();
     }
 
     @SuppressLint("UnsafeOptInUsageError")
     @Override
     public void onSuccess(Object o) {
         List<Face> faces = (List<Face>) o;
-        Rect centerBounds = FaceUtils.getCenter(_image.getWidth(), _image.getHeight(), true);
         int rotationDegrees = _frameProxy.getImageInfo().getRotationDegrees();
         _drawListener.setImageSourceInfo(_image.getWidth(), _image.getHeight(), rotationDegrees, true);
+        _attentionDetector.setImageSize(_image.getWidth(), _image.getHeight(), true);
+        Rect _insideRect = _attentionDetector.getInsideRect();
 
         if (faces.isEmpty()) {
-            if (_cameraView != null) {
-                SingleToast.show(_cameraView, "No face on screen", Toast.LENGTH_SHORT);
-                _drawListener.drawCenterBounds(centerBounds, Color.RED);
-            } else {
-                Log.i("FaceDetectionApp", "No face on screen");
-            }
+            SingleToast.show(_cameraView, "No face on screen", Toast.LENGTH_SHORT);
+            _drawListener.drawCenterBounds(_insideRect, Color.RED);
             return;
         }
-
         for (Face face : faces) {
-
             Rect bounds = face.getBoundingBox();
-            float eulerX = face.getHeadEulerAngleX();
-            float eulerY = face.getHeadEulerAngleY();
-            float eulerZ = face.getHeadEulerAngleZ();
 
-            if (!centerBounds.contains(bounds)) {
-                SingleToast.show(_cameraView, "Face is not centered", Toast.LENGTH_SHORT);
-                _drawListener.drawCenterBounds(centerBounds, Color.RED);
+            if (!_attentionDetector.isInside(bounds)) {
+                SingleToast.show(_cameraView, "Whole face is not inside screen", Toast.LENGTH_SHORT);
+                _drawListener.drawCenterBounds(_insideRect, Color.RED);
                 return;
-            } else {
-                _drawListener.drawCenterBounds(centerBounds, Color.GREEN);
             }
-            //Log.i("FaceDetectionApp", bounds.toString());
 
-            //Bitmap scaledBitmap = Bitmap.createScaledBitmap(BitmapUtils.getCropBitmap(_frameProxy, bounds), 260, 320, true);
-            Bitmap scaledBitmap = BitmapUtils.getBitmap(_frameProxy);
+            List<PointF> leftEye = face.getContour(FaceContour.LEFT_EYE).getPoints();
+            List<PointF> rightEye = face.getContour(FaceContour.RIGHT_EYE).getPoints();
+
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(BitmapUtils.getBitmap(_frameProxy), _frameProxy.getWidth()/4, _frameProxy.getWidth()/4, true);
             //BitmapUtils.saveFrame(scaledBitmap, "/data/user/0/com.ensicaen.facialdetectionapp/output/ld/scaledBitmap_"+_frameProcessed+".png");
             FastBitmap custom = new FastBitmap(scaledBitmap);
 
@@ -94,33 +85,32 @@ public class LivenessDetectorListener extends FaceListener {
                     if (mse > _maxMSE) {
                         _maxMSE = mse;
                     }
-                    if ((_frameProcessed - 2) % 5 == 0) { // Minus two because we do not process first two frames to initialize background subtraction image
+                    if ((_frameProcessed - 2) % _timeBeforeDecision == 0) { // Minus two because we do not process first two frames to initialize background subtraction image
                         if (_maxMSE > 28) {
                             SingleToast.show(_cameraView, "Alive!", Toast.LENGTH_SHORT);
+                            Log.i("FaceDetectionApp", "Alive!");
                         } else {
                             SingleToast.show(_cameraView, "Not alive!", Toast.LENGTH_SHORT);
+                            Log.i("FaceDetectionApp", "Not alive!");
                         }
                         _maxMSE = 0.0;
                     }
-                    Log.i("FaceDetectionApp", String.valueOf(mse));
-                    //BitmapUtils.saveFrame(_bs.getForegroundBitmap(), "/data/user/0/com.ensicaen.facialdetectionapp/output/ld/bsBitmap_"+_frameProcessed+".png");
-                    //((ImageView)_datasetView.findViewById(R.id.dataset_frame)).setImageBitmap(_bs.getForegroundBitmap());
+                    Log.i("FaceDetectionApp", "mse value background subtraction: " + mse);
+
                 }
             }
 
-            List<PointF> rightEye = face.getContour(FaceContour.RIGHT_EYE).getPoints();
-            List<PointF> leftEye = face.getContour(FaceContour.LEFT_EYE).getPoints();
-
             if (((rightEye.get(12).y-rightEye.get(4).y)/bounds.height() < _rightEyeLengthMax*0.65f) ||((leftEye.get(12).y-leftEye.get(4).y)/bounds.height() < _leftEyeLengthMax*0.65f)) {
-                SingleToast.show(_cameraView, "Blink detected", Toast.LENGTH_SHORT);
                 _closed_eye_frame++;
                 return;
             } else {
                 if (_closed_eye_frame != 0) {
                     if (_closed_eye_frame <= 5) {
-                        Log.d("1", "Blinking detected");
-                    }else{
-                        Log.d("1", "Closing detected");
+                        SingleToast.show(_cameraView, "Blinking detected", Toast.LENGTH_SHORT);
+                        Log.d("FaceDetectionApp", "Blinking detected");
+                    } else {
+                        SingleToast.show(_cameraView, "Eye(s) closed", Toast.LENGTH_SHORT);
+                        Log.d("FaceDetectionApp", "Closing detected");
                     }
                     _closed_eye_frame = 0;
                 }
@@ -130,10 +120,6 @@ public class LivenessDetectorListener extends FaceListener {
             }
             if ((leftEye.get(12).y-leftEye.get(4).y)/bounds.height() > _leftEyeLengthMax) {
                 _leftEyeLengthMax = (leftEye.get(12).y-leftEye.get(4).y)/bounds.height();
-            }
-            if (!lookAtTheCamera(rightEye, leftEye)) {
-                Log.d("1", "Look at the camera");
-                return;
             }
 
             _drawListener.drawFacePoints(face.getContour(FaceContour.FACE).getPoints());
