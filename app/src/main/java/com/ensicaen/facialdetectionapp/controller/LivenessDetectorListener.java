@@ -12,6 +12,7 @@ import com.ensicaen.facialdetectionapp.utils.BackgroundSubtraction;
 import com.ensicaen.facialdetectionapp.utils.BitmapUtils;
 import com.ensicaen.facialdetectionapp.utils.FaceUtils;
 import com.ensicaen.facialdetectionapp.utils.SingleToast;
+import com.ensicaen.facialdetectionapp.utils.SizedArrayList;
 import com.ensicaen.facialdetectionapp.view.CameraView;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceContour;
@@ -28,6 +29,8 @@ public class LivenessDetectorListener extends FaceListener {
     private float _leftEyeLengthMax;
     private int _frameProcessed;
     private BackgroundSubtraction _bs;
+    private double _maxMSE;
+    private int _timeBeforeDecision = 5; // number of frame
 
     public LivenessDetectorListener(FrameListener drawListener, CameraView cameraView) {
         _drawListener = drawListener;
@@ -35,13 +38,13 @@ public class LivenessDetectorListener extends FaceListener {
         _rightEyeLengthMax = 0.0f;
         _leftEyeLengthMax = 0.0f;
         _frameProcessed = 0;
+        _maxMSE = 0.0;
     }
 
     @SuppressLint("UnsafeOptInUsageError")
     @Override
     public void onSuccess(Object o) {
         List<Face> faces = (List<Face>) o;
-
         Rect centerBounds = FaceUtils.getCenter(_image.getWidth(), _image.getHeight(), true);
         int rotationDegrees = _frameProxy.getImageInfo().getRotationDegrees();
         _drawListener.setImageSourceInfo(_image.getWidth(), _image.getHeight(), rotationDegrees, true);
@@ -85,8 +88,18 @@ public class LivenessDetectorListener extends FaceListener {
                 _bs.update(custom);
                 if (_frameProcessed > 2) {
                     ObjectiveFidelity of = new ObjectiveFidelity(new FastBitmap(lastFg), _bs.getForeground());
-
                     double mse = of.getMSE();
+                    if (mse > _maxMSE) {
+                        _maxMSE = mse;
+                    }
+                    if ((_frameProcessed - 2) % 5 == 0) { // Minus two because we do not process first two frames to initialize background subtraction image
+                        if (_maxMSE > 28) {
+                            SingleToast.show(_cameraView, "Alive!", Toast.LENGTH_SHORT);
+                        } else {
+                            SingleToast.show(_cameraView, "Not alive!", Toast.LENGTH_SHORT);
+                        }
+                        _maxMSE = 0.0;
+                    }
                     Log.i("FaceDetectionApp", String.valueOf(mse));
                     //BitmapUtils.saveFrame(_bs.getForegroundBitmap(), "/data/user/0/com.ensicaen.facialdetectionapp/output/ld/bsBitmap_"+_frameProcessed+".png");
                     //((ImageView)_datasetView.findViewById(R.id.dataset_frame)).setImageBitmap(_bs.getForegroundBitmap());
