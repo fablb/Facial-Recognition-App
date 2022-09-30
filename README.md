@@ -1,3 +1,3 @@
 # Facial-Recognition-App
 
-`CameraX` version: `1.1.0-beta01`
+This project was done during our internship in Norway, you can access the report [here](./rapport_stage_2A.pdf).
